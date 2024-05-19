@@ -29,13 +29,27 @@ func fetchEnv(name string) string {
 }
 
 func main() {
-	emailAdapter := adapters.EmailAdapter{Username: "sergienkoandre9922@gmail.com", Password: "ydbf qumr oxjx lhyh"}
-	emailAdapter.CreateAuth()
-
 	currencyRateUrl := fetchEnv("CURRENCY_RATE_URL")
 	currencyCode := fetchEnv("CURRENCY_CODE")
+	dbUser := fetchEnv("POSTGRES_USER")
+	dbPassword := fetchEnv("POSTGRES_PASSWORD")
+	dbName := fetchEnv("POSTGRES_DB")
+	dbPort := fetchEnv("DB_PORT")
+	dbHost := fetchEnv("DB_HOST")
+	email := fetchEnv("EMAIL")
+	emailPassword := fetchEnv("EMAIL_PASSWORD")
 
-	dsn := "host=localhost user=postgres password=postgres dbname=my-db port=5432 sslmode=disable"
+	emailAdapter := adapters.EmailAdapter{Username: email, Password: emailPassword}
+	emailAdapter.CreateAuth()
+
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		dbHost,
+		dbUser,
+		dbPassword,
+		dbName,
+		dbPort,
+	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	subscriberAdapter := adapters.SubscribersAdapter{Db: db}
