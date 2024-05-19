@@ -1,4 +1,4 @@
-package src
+package adapters
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ type APICurrencyReader struct {
 	CurrencyCode string
 }
 
-func (cr *APICurrencyReader) getUSDCurrencyRate() (float32, error) {
+func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
 	resp, err := http.Get(cr.ApiUrl)
 	if err != nil {
 		return 0, err
