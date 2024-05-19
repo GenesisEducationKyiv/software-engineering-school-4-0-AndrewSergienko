@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"go_service/src"
+	"go_service/src/models"
 	"gorm.io/gorm"
 )
 
@@ -9,8 +9,8 @@ type SubscribersAdapter struct {
 	Db *gorm.DB
 }
 
-func (sa *SubscribersAdapter) GetByEmail(email string) *src.Subscriber {
-	var subscribers []src.Subscriber
+func (sa *SubscribersAdapter) GetByEmail(email string) *models.Subscriber {
+	var subscribers []models.Subscriber
 	sa.Db.Find(&subscribers, "email = ?", email)
 	if len(subscribers) == 0 {
 		return nil
@@ -19,7 +19,7 @@ func (sa *SubscribersAdapter) GetByEmail(email string) *src.Subscriber {
 }
 
 func (sa *SubscribersAdapter) Create(email string) error {
-	subscriber := src.Subscriber{Email: email}
+	subscriber := models.Subscriber{Email: email}
 	result := sa.Db.Create(&subscriber)
 	if result.Error != nil {
 		return result.Error
@@ -28,11 +28,11 @@ func (sa *SubscribersAdapter) Create(email string) error {
 }
 
 func (sa *SubscribersAdapter) Delete(id int) {
-	sa.Db.Delete(&src.Subscriber{}, id)
+	sa.Db.Delete(&models.Subscriber{}, id)
 }
 
-func (sa *SubscribersAdapter) GetAll() []src.Subscriber {
-	var subscribers []src.Subscriber
+func (sa *SubscribersAdapter) GetAll() []models.Subscriber {
+	var subscribers []models.Subscriber
 	sa.Db.Find(&subscribers)
 	return subscribers
 }
