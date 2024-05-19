@@ -1,12 +1,13 @@
-package src
+package api
 
 import (
 	"encoding/json"
 	"fmt"
+	"go_service/src"
 	"net/http"
 )
 
-func GetCurrencyHandler(cr CurrencyReader) http.HandlerFunc {
+func GetCurrencyHandler(cr src.CurrencyReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusMethodNotAllowed)
@@ -16,7 +17,7 @@ func GetCurrencyHandler(cr CurrencyReader) http.HandlerFunc {
 			}
 		}
 
-		rate, err := cr.getUSDCurrencyRate()
+		rate, err := cr.GetUSDCurrencyRate()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
