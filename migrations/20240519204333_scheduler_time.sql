@@ -1,14 +1,14 @@
 -- +goose Up
 -- +goose StatementBegin
 SELECT 'up SQL query';
-CREATE TABLE IF NOT EXISTS subscribers (
+CREATE TABLE IF NOT EXISTS scheduler_time (
     id SERIAL PRIMARY KEY,
-    email TEXT UNIQUE
+    time INT
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';
-DROP TABLE IF EXISTS subscribers;
+DROP TABLE IF EXISTS scheduler_time;
 -- +goose StatementEnd

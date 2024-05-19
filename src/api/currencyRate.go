@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"go_service/src"
+	"go_service/src/common"
 	"net/http"
 )
 
-func GetCurrencyHandler(cr src.CurrencyReader) http.HandlerFunc {
+func GetCurrencyHandler(cr common.CurrencyReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusMethodNotAllowed)

@@ -26,7 +26,7 @@ func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
 		return 0, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+		err = Body.Close()
 		if err != nil {
 			return
 		}
