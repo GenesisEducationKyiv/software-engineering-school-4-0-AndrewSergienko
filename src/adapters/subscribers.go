@@ -30,3 +30,9 @@ func (sa *SubscribersAdapter) Create(email string) error {
 func (sa *SubscribersAdapter) Delete(id int) {
 	sa.Db.Delete(&src.Subscriber{}, id)
 }
+
+func (sa *SubscribersAdapter) GetAll() []src.Subscriber {
+	var subscribers []src.Subscriber
+	sa.Db.Find(&subscribers)
+	return subscribers
+}

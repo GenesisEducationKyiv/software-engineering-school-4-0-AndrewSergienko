@@ -2,14 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	"go_service/src"
+	"go_service/src/common"
 	"net/http"
 )
 
 type SubscriberGateway interface {
-	src.SubscriberWriter
-	src.SubscriberDeleter
-	src.SubscriberReader
+	common.SubscriberWriter
+	common.SubscriberDeleter
+	common.SubscriberReader
 }
 
 func GetSubscribersHandler(sg SubscriberGateway) http.HandlerFunc {
