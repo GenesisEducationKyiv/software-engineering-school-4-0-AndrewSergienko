@@ -46,6 +46,5 @@ func GetSubscribersHandler(sg SubscriberGateway) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		return
 	}
 }
