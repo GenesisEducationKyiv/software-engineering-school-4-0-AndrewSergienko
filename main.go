@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
-	"net/smtp"
 	"os"
 )
 
@@ -24,7 +23,7 @@ func setupHandlers(cr common.CurrencyReader, sa api.SubscriberGateway) *http.Ser
 func fetchEnv(name string) string {
 	value := os.Getenv(name)
 	if value == "" {
-		log.Fatalf("Environment variable %s is not set", name)
+		log.Fatal(fmt.Sprintf("Environment variable %s is not set", name))
 	}
 	return value
 }
@@ -40,10 +39,8 @@ func main() {
 	email := fetchEnv("EMAIL")
 	emailPassword := fetchEnv("EMAIL_PASSWORD")
 
-	emailAdapter := adapters.EmailAdapter{
-		Username: email,
-		Auth:     smtp.PlainAuth("", email, emailPassword, "smtp.gmail.com"),
-	}
+	emailAdapter := adapters.EmailAdapter{Username: email, Password: emailPassword}
+	emailAdapter.CreateAuth()
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
@@ -54,11 +51,6 @@ func main() {
 		dbPort,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 
 	subscriberAdapter := adapters.SubscribersAdapter{Db: db}
 	schedulerAdapter := adapters.SchedulerDbAdapter{Db: db}
