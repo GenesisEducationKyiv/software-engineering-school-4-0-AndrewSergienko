@@ -7,9 +7,6 @@ on:
     branches: ["*"]
 
 jobs:
-  linters:
-    runs-on: ubuntu-latest
-
   build:
     runs-on: ubuntu-latest
     steps:
