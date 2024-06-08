@@ -56,7 +56,7 @@ func main() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Database is not available. Error: %s", err)
 		return
 	}
 

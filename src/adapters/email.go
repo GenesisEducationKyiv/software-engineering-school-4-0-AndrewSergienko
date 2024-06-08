@@ -12,8 +12,6 @@ type EmailAdapter struct {
 }
 
 func (ea EmailAdapter) Send(target string, rate float32) {
-	//println(fmt.Sprintf("Send email from: %s; to: %s; rate: %f", ea.Username, target, rate))
-
 	to := []string{target}
 
 	msg := []byte("To: kate.doe@example.com\r\n" +
@@ -24,6 +22,6 @@ func (ea EmailAdapter) Send(target string, rate float32) {
 	err := smtp.SendMail("smtp.gmail.com:587", ea.Auth, ea.Username, to, msg)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Send email error:", err)
 	}
 }
