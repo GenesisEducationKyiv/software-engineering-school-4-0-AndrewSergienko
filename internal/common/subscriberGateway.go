@@ -1,7 +1,7 @@
 package common
 
 import (
-	"go_service/src/models"
+	"go_service/internal/infrastructure/database/models"
 )
 
 type SubscriberReader interface {

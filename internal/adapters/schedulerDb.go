@@ -1,13 +1,17 @@
 package adapters
 
 import (
-	"go_service/src/models"
+	"go_service/internal/infrastructure/database/models"
 	"gorm.io/gorm"
 	"time"
 )
 
 type SchedulerDbAdapter struct {
 	Db *gorm.DB
+}
+
+func GetSchedulerDbAdapter(db *gorm.DB) *SchedulerDbAdapter {
+	return &SchedulerDbAdapter{Db: db}
 }
 
 func (sa SchedulerDbAdapter) GetLastTime() *time.Time {

@@ -3,6 +3,7 @@ package adapters
 import (
 	"encoding/json"
 	"fmt"
+	"go_service/internal/infrastructure"
 	"io"
 	"net/http"
 )
@@ -18,6 +19,13 @@ type Currency struct {
 type APICurrencyReader struct {
 	ApiUrl       string
 	CurrencyCode string
+}
+
+func GetAPICurrencyReader(settings infrastructure.CurrencyAPISettings) *APICurrencyReader {
+	return &APICurrencyReader{
+		ApiUrl:       settings.CurrencyRateURL,
+		CurrencyCode: settings.CurrencyCode,
+	}
 }
 
 func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
