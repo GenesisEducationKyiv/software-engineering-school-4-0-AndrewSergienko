@@ -39,7 +39,7 @@ type CurrencyHandlers struct {
 	currencyGateway common.CurrencyReader
 }
 
-func NewCurrencyHandlers(currencyGateway common.CurrencyReader) CurrencyHandlers {
+func InitCurrencyHandlers(currencyGateway common.CurrencyReader) CurrencyHandlers {
 	return CurrencyHandlers{currencyGateway}
 }
 

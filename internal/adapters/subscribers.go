@@ -1,12 +1,16 @@
 package adapters
 
 import (
-	"go_service/internal/infrastructure/db/models"
+	"go_service/internal/infrastructure/database/models"
 	"gorm.io/gorm"
 )
 
 type SubscribersAdapter struct {
 	Db *gorm.DB
+}
+
+func GetSubscribersAdapter(db *gorm.DB) *SubscribersAdapter {
+	return &SubscribersAdapter{Db: db}
 }
 
 func (sa *SubscribersAdapter) GetByEmail(email string) *models.Subscriber {
