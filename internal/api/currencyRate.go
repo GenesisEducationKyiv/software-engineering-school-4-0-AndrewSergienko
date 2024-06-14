@@ -3,7 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"go_service/src/common"
+	"github.com/gofiber/fiber/v2"
+	"go_service/internal/common"
 	"net/http"
 )
 
@@ -32,4 +33,26 @@ func GetCurrencyHandler(cr common.CurrencyReader) http.HandlerFunc {
 			return
 		}
 	}
+}
+
+type CurrencyHandlers struct {
+	currencyGateway common.CurrencyReader
+}
+
+func NewCurrencyHandlers(currencyGateway common.CurrencyReader) CurrencyHandlers {
+	return CurrencyHandlers{currencyGateway}
+}
+
+func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
+	rate, err := ch.currencyGateway.GetUSDCurrencyRate()
+
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
+
+	response := map[string]interface{}{
+		"rate": rate,
+	}
+
+	return c.JSON(response)
 }

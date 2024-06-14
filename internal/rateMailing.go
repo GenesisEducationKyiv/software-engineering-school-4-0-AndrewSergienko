@@ -1,7 +1,7 @@
-package src
+package internal
 
 import (
-	"go_service/src/common"
+	"go_service/internal/common"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"go_service/src/models"
+	"go_service/internal/infrastructure/db/models"
 	"gorm.io/gorm"
 )
 
