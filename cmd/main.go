@@ -1,10 +1,7 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"go_service/internal"
 	"go_service/internal/adapters"
-	"go_service/internal/api"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
 	"log"
@@ -25,19 +22,12 @@ func main() {
 	currencyReader := adapters.GetAPICurrencyReader(currencyAPISettings)
 
 	// background send mail task
-	rateMailer := internal.RateMailer{
-		Es: emailAdapter,
-		Sr: subscriberAdapter,
-		Sg: schedulerAdapter,
-		Cr: currencyReader,
-	}
+	rateMailer := InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
 
 	// web app
-	app := fiber.New()
-	currencyHandlers := api.InitCurrencyHandlers(currencyReader)
-	app.Get("/", currencyHandlers.GetCurrency)
+	webApp := InitWebApp(currencyReader, subscriberAdapter)
 
 	// starting services
 	go rateMailer.Run()
-	log.Fatalf("App failed with error: %v", app.Listen(":8080"))
+	log.Fatalf("App failed with error: %v", webApp.Listen(":8080"))
 }

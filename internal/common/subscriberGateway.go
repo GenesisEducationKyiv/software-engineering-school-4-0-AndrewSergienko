@@ -17,5 +17,5 @@ type SubscriberWriter interface {
 }
 
 type SubscriberDeleter interface {
-	Delete(id int)
+	Delete(id int) error
 }

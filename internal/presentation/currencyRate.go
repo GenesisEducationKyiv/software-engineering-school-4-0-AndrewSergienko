@@ -1,4 +1,4 @@
-package api
+package presentation
 
 import (
 	"github.com/gofiber/fiber/v2"

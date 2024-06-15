@@ -5,15 +5,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type SubscribersAdapter struct {
+type SubscriberAdapter struct {
 	Db *gorm.DB
 }
 
-func GetSubscribersAdapter(db *gorm.DB) *SubscribersAdapter {
-	return &SubscribersAdapter{Db: db}
+func GetSubscribersAdapter(db *gorm.DB) *SubscriberAdapter {
+	return &SubscriberAdapter{Db: db}
 }
 
-func (sa *SubscribersAdapter) GetByEmail(email string) *models.Subscriber {
+func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
 	var subscribers []models.Subscriber
 	sa.Db.Find(&subscribers, "email = ?", email)
 	if len(subscribers) == 0 {
@@ -22,20 +22,16 @@ func (sa *SubscribersAdapter) GetByEmail(email string) *models.Subscriber {
 	return &subscribers[0]
 }
 
-func (sa *SubscribersAdapter) Create(email string) error {
+func (sa *SubscriberAdapter) Create(email string) error {
 	subscriber := models.Subscriber{Email: email}
-	result := sa.Db.Create(&subscriber)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+	return sa.Db.Create(&subscriber).Error
 }
 
-func (sa *SubscribersAdapter) Delete(id int) {
-	sa.Db.Delete(&models.Subscriber{}, id)
+func (sa *SubscriberAdapter) Delete(id int) error {
+	return sa.Db.Delete(&models.Subscriber{}, id).Error
 }
 
-func (sa *SubscribersAdapter) GetAll() []models.Subscriber {
+func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
 	var subscribers []models.Subscriber
 	sa.Db.Find(&subscribers)
 	return subscribers

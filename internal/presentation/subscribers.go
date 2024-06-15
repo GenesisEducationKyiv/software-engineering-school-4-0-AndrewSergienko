@@ -1,4 +1,4 @@
-package api
+package presentation
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -14,6 +14,10 @@ type SubscriberGateway interface {
 
 type SubscribersHandlers struct {
 	subscriberGateway SubscriberGateway
+}
+
+func InitSubscribersHandlers(subscriberGateway SubscriberGateway) *SubscribersHandlers {
+	return &SubscribersHandlers{subscriberGateway}
 }
 
 func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
