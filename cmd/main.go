@@ -17,7 +17,7 @@ func main() {
 
 	// initializing adapters
 	subscriberAdapter := adapters.GetSubscribersAdapter(db)
-	schedulerAdapter := adapters.GetSchedulerDbAdapter(db)
+	schedulerAdapter := adapters.GetSchedulerDBAdapter(db)
 	emailAdapter := adapters.GetEmailAdapter(emailSettings)
 	currencyReader := adapters.GetAPICurrencyReader(currencyAPISettings)
 

@@ -6,16 +6,16 @@ import (
 )
 
 type SubscriberAdapter struct {
-	Db *gorm.DB
+	db *gorm.DB
 }
 
 func GetSubscribersAdapter(db *gorm.DB) *SubscriberAdapter {
-	return &SubscriberAdapter{Db: db}
+	return &SubscriberAdapter{db: db}
 }
 
 func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
 	var subscribers []models.Subscriber
-	sa.Db.Find(&subscribers, "email = ?", email)
+	sa.db.Find(&subscribers, "email = ?", email)
 	if len(subscribers) == 0 {
 		return nil
 	}
@@ -24,15 +24,15 @@ func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
 
 func (sa *SubscriberAdapter) Create(email string) error {
 	subscriber := models.Subscriber{Email: email}
-	return sa.Db.Create(&subscriber).Error
+	return sa.db.Create(&subscriber).Error
 }
 
 func (sa *SubscriberAdapter) Delete(id int) error {
-	return sa.Db.Delete(&models.Subscriber{}, id).Error
+	return sa.db.Delete(&models.Subscriber{}, id).Error
 }
 
 func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
 	var subscribers []models.Subscriber
-	sa.Db.Find(&subscribers)
+	sa.db.Find(&subscribers)
 	return subscribers
 }

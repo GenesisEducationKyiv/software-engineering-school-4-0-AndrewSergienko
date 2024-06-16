@@ -2,6 +2,7 @@ package main
 
 import (
 	"go_service/internal/common"
+	"log"
 	"time"
 )
 
@@ -31,30 +32,26 @@ func (ms RateMailer) Run() {
 	now := time.Now()
 
 	if (lastTime != nil && lastTime.Day() < now.Day() && lastTime.Hour() >= now.Hour()) || lastTime == nil {
-		err := ms.SendRateToAll()
-		if err != nil {
-			return
-		}
-		err = ms.schedulerTimeGateway.SetLastTime()
-		if err != nil {
-			return
-		}
+		ms.RunSending()
 		lastTime = &now
 	}
 
 	for {
 		time.Sleep(time.Until(ms.GetNextTime(lastTime)))
-		err := ms.SendRateToAll()
-		if err != nil {
-			return
-		}
-		err = ms.schedulerTimeGateway.SetLastTime()
-		if err != nil {
-			return
-		}
+		ms.RunSending()
 		lastTime = &now
 	}
+}
 
+func (ms RateMailer) RunSending() {
+	err := ms.SendRateToAll()
+	if err != nil {
+		log.Printf("Failed to send rate mail to all emails: %v\n", err)
+	}
+	err = ms.schedulerTimeGateway.SetLastTime()
+	if err != nil {
+		log.Printf("Failed to save last sending time: %v\n", err)
+	}
 }
 
 func (ms RateMailer) SendRateToAll() error {
