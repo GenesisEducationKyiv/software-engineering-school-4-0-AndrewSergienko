@@ -9,23 +9,23 @@ import (
 	"testing"
 )
 
-type SubscribersTestSuite struct {
+type SubscriberAdapterTestSuite struct {
 	suite.Suite
 	database *gorm.DB
 	adapter  *SubscriberAdapter
 }
 
-func (suite *SubscribersTestSuite) SetupSuite() {
+func (suite *SubscriberAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
 	suite.database = database.InitDatabase(settings)
 	suite.adapter = GetSubscribersAdapter(suite.database)
 }
 
-func (suite *SubscribersTestSuite) TearDownTest() {
+func (suite *SubscriberAdapterTestSuite) TearDownTest() {
 	infrastructure.ClearDB(suite.database)
 }
 
-func (suite *SubscribersTestSuite) TestGetByEmail() {
+func (suite *SubscriberAdapterTestSuite) TestGetByEmail() {
 	email := "test@gmail.com"
 	suite.database.Create(&models.Subscriber{Email: email})
 
@@ -34,7 +34,7 @@ func (suite *SubscribersTestSuite) TestGetByEmail() {
 	suite.NotNil(subscriber)
 }
 
-func (suite *SubscribersTestSuite) TestCreate() {
+func (suite *SubscriberAdapterTestSuite) TestCreate() {
 	email := "test@gmail.com"
 
 	err := suite.adapter.Create(email)
@@ -45,7 +45,7 @@ func (suite *SubscribersTestSuite) TestCreate() {
 	suite.NotNil(subscriber)
 }
 
-func (suite *SubscribersTestSuite) TestCreateDuplicate() {
+func (suite *SubscriberAdapterTestSuite) TestCreateDuplicate() {
 	email := "test@gmail.com"
 	suite.database.Create(&models.Subscriber{Email: email})
 
@@ -53,7 +53,7 @@ func (suite *SubscribersTestSuite) TestCreateDuplicate() {
 	suite.NotNil(err)
 }
 
-func (suite *SubscribersTestSuite) TestGetAll() {
+func (suite *SubscriberAdapterTestSuite) TestGetAll() {
 	emails := []string{"test1@gmail.com", "test2@gmail.com", "test3@gmail.com"}
 	for _, email := range emails {
 		suite.database.Create(&models.Subscriber{Email: email})
@@ -69,5 +69,5 @@ func (suite *SubscribersTestSuite) TestGetAll() {
 }
 
 func TestSubscriberAdapterSuite(t *testing.T) {
-	suite.Run(t, new(SubscribersTestSuite))
+	suite.Run(t, new(SubscriberAdapterTestSuite))
 }

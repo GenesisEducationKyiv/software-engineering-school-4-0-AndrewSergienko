@@ -1,9 +1,9 @@
 package models
 
-type SchedulerTime struct {
+type ScheduleTime struct {
 	Time int64
 }
 
-func (SchedulerTime) TableName() string {
+func (ScheduleTime) TableName() string {
 	return "scheduler_time"
 }
