@@ -3,14 +3,12 @@ package adapters
 import (
 	"github.com/stretchr/testify/suite"
 	"go_service/internal/infrastructure"
-	"gorm.io/gorm"
 	"testing"
 )
 
 type CurrencyRateAdapterSuite struct {
 	suite.Suite
-	database *gorm.DB
-	adapter  *APICurrencyReader
+	adapter *APICurrencyReader
 }
 
 func (suite *CurrencyRateAdapterSuite) SetupSuite() {
