@@ -4,7 +4,6 @@ package infrastructure
 
 import (
 	"fmt"
-
 	"gorm.io/gorm"
 	"log"
 )

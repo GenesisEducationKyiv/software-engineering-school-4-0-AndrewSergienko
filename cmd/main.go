@@ -2,6 +2,7 @@ package main
 
 import (
 	"go_service/internal/adapters"
+	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
 	"log"
@@ -25,7 +26,7 @@ func main() {
 	rateMailer := InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
 
 	// web app
-	webApp := InitWebApp(currencyReader, subscriberAdapter)
+	webApp := app.InitWebApp(currencyReader, subscriberAdapter)
 
 	// starting services
 	go rateMailer.Run()
