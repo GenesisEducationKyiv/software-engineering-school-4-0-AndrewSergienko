@@ -23,7 +23,7 @@ func main() {
 	currencyReader := adapters.GetAPICurrencyReader(currencyAPISettings)
 
 	// background send mail task
-	rateMailer := InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
+	rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
 
 	// web app
 	webApp := app.InitWebApp(currencyReader, subscriberAdapter)

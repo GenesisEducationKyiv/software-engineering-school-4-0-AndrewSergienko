@@ -5,7 +5,7 @@ services:
       - "8080:8080"
     env_file:
       - conf/.env
-    command: bash -c "goose -dir migrations postgres \"host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}\" up && go main service-app"
+    command: bash -c "goose -dir internal/infrastructure/database/migrations postgres \"host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}\" up && /goapp"
     depends_on:
       postgres:
         condition: service_healthy
@@ -16,6 +16,6 @@ services:
     ports:
       - '5432:5432'
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}
       interval: 3s
       retries: 5
