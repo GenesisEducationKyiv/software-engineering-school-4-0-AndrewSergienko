@@ -12,23 +12,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "goservice"
-      CURRENCY_CODE: "USD"
-      CURRENCY_RATE_URL: "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
-      DB_PORT: "5432"
-      DB_HOST: "postgres"
-      EMAIL: "test@mail.com"
-      EMAIL_PASSWORD: "password"
-      EMAIL_HOST: "localhost"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: goservice
+      CURRENCY_CODE: USD
+      CURRENCY_RATE_URL: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json
+      DB_PORT: 5432
+      DB_HOST: postgres
+      EMAIL: test@mail.com
+      EMAIL_PASSWORD: password
+      EMAIL_HOST: localhost
 
     services:
       postgres:
       env:
-        POSTGRES_USER: "postgres"
-        POSTGRES_PASSWORD: "postgres"
-        POSTGRES_DB: "goservice"
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: goservice
         image: postgres
         ports: [ 5432:5432 ]
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
