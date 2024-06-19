@@ -15,25 +15,30 @@ import (
 
 type SubscribersPresentationSuite struct {
 	suite.Suite
-	database          *gorm.DB
+	db                *gorm.DB
+	transaction       *gorm.DB
 	subscriberGateway presentation.SubscriberGateway
 	webApp            *fiber.App
 }
 
 func (suite *SubscribersPresentationSuite) SetupSuite() {
 	databaseSettings := infrastructure.GetDatabaseSettings()
-	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
-	suite.database = database.InitDatabase(databaseSettings)
+	suite.db = database.InitDatabase(databaseSettings)
 
+}
+
+func (suite *SubscribersPresentationSuite) SetupTest() {
+	suite.transaction = suite.db.Begin()
+	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 	currencyGateway := adapters.GetAPICurrencyReader(currencyAPISettings)
-	subscriberGateway := adapters.GetSubscribersAdapter(suite.database)
+	subscriberGateway := adapters.GetSubscribersAdapter(suite.db)
 
 	suite.subscriberGateway = subscriberGateway
 	suite.webApp = InitWebApp(currencyGateway, subscriberGateway)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {
-	infrastructure.ClearDB(suite.database)
+	suite.db.Rollback()
 }
 
 func (suite *SubscribersPresentationSuite) TestAddSubscriber() {

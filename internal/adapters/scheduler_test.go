@@ -12,25 +12,31 @@ import (
 
 type SchedulerAdapterTestSuite struct {
 	suite.Suite
-	database *gorm.DB
-	adapter  *ScheduleDBAdapter
+	db          *gorm.DB
+	transaction *gorm.DB
+	adapter     *ScheduleDBAdapter
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
-	suite.database = database.InitDatabase(settings)
-	suite.adapter = GetScheduleDBAdapter(suite.database)
+	suite.db = database.InitDatabase(settings)
+
+}
+
+func (suite *SchedulerAdapterTestSuite) SetupTest() {
+	suite.transaction = suite.db.Begin()
+	suite.adapter = GetScheduleDBAdapter(suite.transaction)
 }
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {
-	infrastructure.ClearDB(suite.database)
+	suite.transaction.Rollback()
 }
 
 func (suite *SchedulerAdapterTestSuite) TestGetLastTimeExisted() {
 	now := time.Now()
 	now = now.Truncate(time.Second)
 
-	suite.database.Create(&models.ScheduleTime{Time: now.Unix()})
+	suite.transaction.Create(&models.ScheduleTime{Time: now.Unix()})
 
 	suite.Equal(now, *suite.adapter.GetLastTime())
 }
