@@ -8,6 +8,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"go_service/internal/common"
 	"go_service/internal/infrastructure"
+	"log"
 	"testing"
 )
 
@@ -36,6 +37,7 @@ func (suite *EmailAdapterTestSuite) SetupSuite() {
 	suite.container = container
 
 	host, err := container.Host(ctx)
+	suite.NoError(err)
 	smtpPort, err := container.MappedPort(ctx, "1025")
 	suite.NoError(err)
 
@@ -50,7 +52,10 @@ func (suite *EmailAdapterTestSuite) SetupSuite() {
 }
 
 func (suite *EmailAdapterTestSuite) TearDownSuite() {
-	suite.container.Terminate(suite.ctx)
+	err := suite.container.Terminate(suite.ctx)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (suite *EmailAdapterTestSuite) TestSend() {
