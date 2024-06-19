@@ -31,7 +31,7 @@ func (suite *SubscribersPresentationSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 	currencyGateway := adapters.GetAPICurrencyReader(currencyAPISettings)
-	subscriberGateway := adapters.GetSubscribersAdapter(suite.db)
+	subscriberGateway := adapters.GetSubscribersAdapter(suite.transaction)
 
 	suite.subscriberGateway = subscriberGateway
 	suite.webApp = InitWebApp(currencyGateway, subscriberGateway)

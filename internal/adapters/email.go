@@ -3,33 +3,32 @@ package adapters
 import (
 	"fmt"
 	"go_service/internal/infrastructure"
-	"log"
 	"net/smtp"
 )
 
 type EmailAdapter struct {
-	Username string
-	Auth     smtp.Auth
+	username string
+	host     string
+	auth     smtp.Auth
 }
 
 func GetEmailAdapter(settings infrastructure.EmailSettings) EmailAdapter {
 	return EmailAdapter{
-		Username: settings.Email,
-		Auth:     smtp.PlainAuth("", settings.Email, settings.Password, settings.Host),
+		username: settings.Email,
+		host:     settings.Host,
+		auth:     smtp.PlainAuth("", settings.Email, settings.Password, settings.Host),
 	}
 }
 
-func (ea EmailAdapter) Send(target string, rate float32) {
+func (ea EmailAdapter) Send(target string, rate float32) error {
+
 	to := []string{target}
+	subject := "Subject: USD rate\r\n"
+	from := "From: " + ea.username + "\r\n"
+	toHeader := "To: target@example.com\r\n"
+	body := "USD rate: " + fmt.Sprintf("%f", rate) + "\r\n"
 
-	msg := []byte(
-		"Subject: USD rate\r\n" +
-			"\r\n" +
-			"USD rate: " + fmt.Sprintf("%f", rate) + "\r\n",
-	)
+	msg := []byte(from + toHeader + subject + "\r\n" + body)
 
-	err := smtp.SendMail("smtp.gmail.com:587", ea.Auth, ea.Username, to, msg)
-	if err != nil {
-		log.Println("Send email error:", err)
-	}
+	return smtp.SendMail(ea.host, nil, ea.username, to, msg)
 }
