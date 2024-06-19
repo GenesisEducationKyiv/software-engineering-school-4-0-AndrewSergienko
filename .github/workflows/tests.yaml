@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      TEST_DB_URL : ${{ vars.TEST_DB_URL }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+      CURRENCY_CODE: ${{ vars.CURRENCY_CODE }}
+      CURRENCY_RATE_URL: ${{ vars.CURRENCY_RATE_URL }}
+      DB_PORT: ${{ vars.DB_PORT }}
+      DB_HOST: ${{ vars.DB_HOST }}
+      EMAIL: ${{ vars.EMAIL }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_HOST: ${{ vars.EMAIL }}
+
+    services:
+      postgres:
+        image: postgres
+        ports: [ '5432:5432' ]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.18'
+
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Run tests
+      run: go test -v ./...
+
