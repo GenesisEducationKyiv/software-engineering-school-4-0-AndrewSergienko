@@ -18,7 +18,7 @@ jobs:
       CURRENCY_CODE: USD
       CURRENCY_RATE_URL: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json
       DB_PORT: 5432
-      DB_HOST: postgres
+      DB_HOST: localhost
       EMAIL: test@mail.com
       EMAIL_PASSWORD: password
       EMAIL_HOST: localhost
@@ -27,27 +27,34 @@ jobs:
       postgres:
         image: postgres
         ports: ['5432:5432']
-        options: --health-cmd pg_isready -d goservice -U postgres --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -d goservice -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: goservice
+
+      mailhog:
+        image: mailhog/mailhog
+        ports: [ '1025:1025', '8025:8025' ]
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v3
+      with:
+        go-version: '1.22.3'
 
     - name: Install dependencies
       run: go mod tidy
 
-    - name: Wait for PostgreSQL to be ready
+    - name: Install Goose
       run: |
-        until pg_isready -h postgres -p 5432 -U postgres; do
-          echo "Waiting for PostgreSQL..."
-          sleep 1
-        done
+        go install github.com/pressly/goose/v3/cmd/goose@latest
+
+    - name: Run database migrations
+      run: |
+        goose -dir internal/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
 
     - name: Run tests
       run: go test -v ./...
