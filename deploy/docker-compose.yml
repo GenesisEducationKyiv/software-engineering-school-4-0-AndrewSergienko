@@ -1,0 +1,29 @@
+services:
+  api:
+    build: ..
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../conf/.env
+    command: bash -c "goose -dir internal/infrastructure/database/migrations postgres \"host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}\" up && /goapp"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres
+    env_file:
+      - ../conf/.env
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}
+      interval: 3s
+      retries: 5
+#  nginx:
+#    image: nginx
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - api
+#    volumes:
+#      - ../conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro

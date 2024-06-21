@@ -1,7 +1,7 @@
 package common
 
 import (
-	"go_service/src/models"
+	"go_service/internal/infrastructure/database/models"
 )
 
 type SubscriberReader interface {
@@ -17,5 +17,5 @@ type SubscriberWriter interface {
 }
 
 type SubscriberDeleter interface {
-	Delete(id int)
+	Delete(id int) error
 }
