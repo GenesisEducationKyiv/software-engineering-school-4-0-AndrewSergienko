@@ -2,21 +2,21 @@ package presentation
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/common"
+	"go_service/internal/infrastructure/database/models"
 	"net/mail"
 )
 
 type SubscriberGateway interface {
-	common.SubscriberWriter
-	common.SubscriberDeleter
-	common.SubscriberReader
+	Create(email string) error
+	Delete(id int) error
+	GetByEmail(email string) *models.Subscriber
 }
 
 type SubscribersHandlers struct {
 	subscriberGateway SubscriberGateway
 }
 
-func InitSubscribersHandlers(subscriberGateway SubscriberGateway) *SubscribersHandlers {
+func NewSubscribersHandlers(subscriberGateway SubscriberGateway) *SubscribersHandlers {
 	return &SubscribersHandlers{subscriberGateway}
 }
 

@@ -12,7 +12,7 @@ type EmailAdapter struct {
 	auth     smtp.Auth
 }
 
-func GetEmailAdapter(settings infrastructure.EmailSettings) EmailAdapter {
+func NewEmailAdapter(settings infrastructure.EmailSettings) EmailAdapter {
 	return EmailAdapter{
 		username: settings.Email,
 		host:     settings.Host,

@@ -24,7 +24,7 @@ func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 
 func (suite *SchedulerAdapterTestSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	suite.adapter = GetScheduleDBAdapter(suite.transaction)
+	suite.adapter = NewScheduleDBAdapter(suite.transaction)
 }
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {
