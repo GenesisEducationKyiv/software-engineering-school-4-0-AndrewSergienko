@@ -3,7 +3,6 @@ package adapters
 import (
 	"errors"
 	"github.com/stretchr/testify/suite"
-	"go_service/internal/common"
 	"go_service/internal/infrastructure"
 	"net"
 	"testing"
@@ -11,7 +10,7 @@ import (
 
 type EmailAdapterTestSuite struct {
 	suite.Suite
-	adapter common.EmailSender
+	adapter EmailAdapter
 }
 
 func (suite *EmailAdapterTestSuite) SetupSuite() {
@@ -19,7 +18,7 @@ func (suite *EmailAdapterTestSuite) SetupSuite() {
 	settings.Host = "localhost:1025"
 	settings.Email = "sender@test.com"
 	settings.Password = ""
-	suite.adapter = GetEmailAdapter(settings)
+	suite.adapter = NewEmailAdapter(settings)
 }
 
 func (suite *EmailAdapterTestSuite) TestSend() {

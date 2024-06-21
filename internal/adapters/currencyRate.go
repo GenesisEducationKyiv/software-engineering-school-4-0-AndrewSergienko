@@ -21,7 +21,7 @@ type APICurrencyReader struct {
 	CurrencyCode string
 }
 
-func GetAPICurrencyReader(settings infrastructure.CurrencyAPISettings) *APICurrencyReader {
+func NewAPICurrencyReader(settings infrastructure.CurrencyAPISettings) *APICurrencyReader {
 	return &APICurrencyReader{
 		APIURL:       settings.CurrencyRateURL,
 		CurrencyCode: settings.CurrencyCode,

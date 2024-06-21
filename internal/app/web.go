@@ -9,8 +9,8 @@ import (
 func InitWebApp(currencyGateway *adapters.APICurrencyReader, subscriberGateway *adapters.SubscriberAdapter) *fiber.App {
 	app := fiber.New()
 
-	currencyHandlers := presentation.InitCurrencyHandlers(currencyGateway)
-	subscribersHandles := presentation.InitSubscribersHandlers(subscriberGateway)
+	currencyHandlers := presentation.NewCurrencyHandlers(currencyGateway)
+	subscribersHandles := presentation.NewSubscribersHandlers(subscriberGateway)
 
 	app.Get("/", currencyHandlers.GetCurrency)
 	app.Post("/subscribers", subscribersHandles.AddSubscriber)

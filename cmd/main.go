@@ -17,10 +17,10 @@ func main() {
 	db := database.InitDatabase(databaseSettings)
 
 	// initializing adapters
-	subscriberAdapter := adapters.GetSubscribersAdapter(db)
-	schedulerAdapter := adapters.GetScheduleDBAdapter(db)
-	emailAdapter := adapters.GetEmailAdapter(emailSettings)
-	currencyReader := adapters.GetAPICurrencyReader(currencyAPISettings)
+	subscriberAdapter := adapters.NewSubscribersAdapter(db)
+	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
+	emailAdapter := adapters.NewEmailAdapter(emailSettings)
+	currencyReader := adapters.NewAPICurrencyReader(currencyAPISettings)
 
 	// background send mail task
 	rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)

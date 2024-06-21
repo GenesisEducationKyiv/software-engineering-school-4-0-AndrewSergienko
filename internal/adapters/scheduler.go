@@ -10,7 +10,7 @@ type ScheduleDBAdapter struct {
 	db *gorm.DB
 }
 
-func GetScheduleDBAdapter(db *gorm.DB) *ScheduleDBAdapter {
+func NewScheduleDBAdapter(db *gorm.DB) *ScheduleDBAdapter {
 	return &ScheduleDBAdapter{db: db}
 }
 

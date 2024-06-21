@@ -23,7 +23,7 @@ func (suite *SubscriberAdapterTestSuite) SetupSuite() {
 
 func (suite *SubscriberAdapterTestSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	suite.adapter = GetSubscribersAdapter(suite.transaction)
+	suite.adapter = NewSubscribersAdapter(suite.transaction)
 }
 
 func (suite *SubscriberAdapterTestSuite) TearDownTest() {

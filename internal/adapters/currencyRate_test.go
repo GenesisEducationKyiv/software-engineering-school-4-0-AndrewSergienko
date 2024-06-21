@@ -13,7 +13,7 @@ type CurrencyRateAdapterSuite struct {
 
 func (suite *CurrencyRateAdapterSuite) SetupSuite() {
 	settings := infrastructure.GetCurrencyAPISettings()
-	suite.adapter = GetAPICurrencyReader(settings)
+	suite.adapter = NewAPICurrencyReader(settings)
 }
 
 func (suite *CurrencyRateAdapterSuite) TestGetUSDCurrencyRate() {
