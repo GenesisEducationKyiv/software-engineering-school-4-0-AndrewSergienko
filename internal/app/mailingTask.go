@@ -1,28 +1,40 @@
 package app
 
 import (
-	"go_service/internal/common"
+	"go_service/internal/infrastructure/database/models"
 	"log"
 	"time"
 )
 
 type SchedulerTimeGateway interface {
-	common.SchedulerReader
-	common.SchedulerWriter
+	GetLastTime() *time.Time
+	SetLastTime() error
+}
+
+type SubscriberGateway interface {
+	GetAll() []models.Subscriber
+}
+
+type EmailGateway interface {
+	Send(target string, rate float32) error
+}
+
+type CurrencyGateway interface {
+	GetUSDCurrencyRate() (float32, error)
 }
 
 type RateMailer struct {
-	emailGateway         common.EmailSender
-	subscriberGateway    common.SubscriberListReader
+	emailGateway         EmailGateway
+	subscriberGateway    SubscriberGateway
 	schedulerTimeGateway SchedulerTimeGateway
-	currencyGateway      common.CurrencyReader
+	currencyGateway      CurrencyGateway
 }
 
 func InitRateMailer(
-	es common.EmailSender,
-	sr common.SubscriberListReader,
+	es EmailGateway,
+	sr SubscriberGateway,
 	sg SchedulerTimeGateway,
-	cr common.CurrencyReader,
+	cr CurrencyGateway,
 ) RateMailer {
 	return RateMailer{es, sr, sg, cr}
 }

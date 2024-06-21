@@ -9,7 +9,7 @@ type SubscriberAdapter struct {
 	db *gorm.DB
 }
 
-func GetSubscribersAdapter(db *gorm.DB) *SubscriberAdapter {
+func NewSubscribersAdapter(db *gorm.DB) *SubscriberAdapter {
 	return &SubscriberAdapter{db: db}
 }
 

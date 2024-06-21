@@ -2,14 +2,17 @@ package presentation
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/common"
 )
 
-type CurrencyHandlers struct {
-	currencyGateway common.CurrencyReader
+type CurrencyGateway interface {
+	GetUSDCurrencyRate() (float32, error)
 }
 
-func InitCurrencyHandlers(currencyGateway common.CurrencyReader) CurrencyHandlers {
+type CurrencyHandlers struct {
+	currencyGateway CurrencyGateway
+}
+
+func NewCurrencyHandlers(currencyGateway CurrencyGateway) CurrencyHandlers {
 	return CurrencyHandlers{currencyGateway}
 }
 
