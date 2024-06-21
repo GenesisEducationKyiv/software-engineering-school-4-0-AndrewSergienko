@@ -6,16 +6,16 @@ import (
 	"time"
 )
 
-type SchedulerDBAdapter struct {
+type ScheduleDBAdapter struct {
 	db *gorm.DB
 }
 
-func GetSchedulerDBAdapter(db *gorm.DB) *SchedulerDBAdapter {
-	return &SchedulerDBAdapter{db: db}
+func GetScheduleDBAdapter(db *gorm.DB) *ScheduleDBAdapter {
+	return &ScheduleDBAdapter{db: db}
 }
 
-func (sa SchedulerDBAdapter) GetLastTime() *time.Time {
-	var lastTime models.SchedulerTime
+func (sa ScheduleDBAdapter) GetLastTime() *time.Time {
+	var lastTime models.ScheduleTime
 	result := sa.db.Last(&lastTime)
 	if result.Error != nil {
 		return nil
@@ -24,8 +24,8 @@ func (sa SchedulerDBAdapter) GetLastTime() *time.Time {
 	return &lastTimeUnix
 }
 
-func (sa SchedulerDBAdapter) SetLastTime() error {
-	schedulerTime := models.SchedulerTime{Time: time.Now().Unix()}
+func (sa ScheduleDBAdapter) SetLastTime() error {
+	schedulerTime := models.ScheduleTime{Time: time.Now().Unix()}
 	result := sa.db.Create(&schedulerTime)
 	if result.Error != nil {
 		return result.Error

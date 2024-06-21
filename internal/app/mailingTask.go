@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"go_service/internal/common"
@@ -61,7 +61,10 @@ func (ms RateMailer) SendRateToAll() error {
 		return err
 	}
 	for _, subscriber := range subscribers {
-		go ms.emailGateway.Send(subscriber.Email, rate)
+		err = ms.emailGateway.Send(subscriber.Email, rate)
+		if err != nil {
+			log.Printf("Failed to send email: %v\n", err)
+		}
 	}
 	return nil
 }
