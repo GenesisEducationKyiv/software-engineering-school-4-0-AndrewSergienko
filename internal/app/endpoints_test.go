@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/suite"
 	"go_service/internal/adapters"
+	"go_service/internal/adapters/currency_rate"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
 	"go_service/internal/presentation"
@@ -30,7 +31,7 @@ func (suite *SubscribersPresentationSuite) SetupSuite() {
 func (suite *SubscribersPresentationSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
-	currencyGateway := adapters.NewAPICurrencyReader(currencyAPISettings)
+	currencyGateway := currency_rate.NewAPICurrencyReader(currencyAPISettings)
 	subscriberGateway := adapters.NewSubscribersAdapter(suite.transaction)
 
 	suite.subscriberGateway = subscriberGateway

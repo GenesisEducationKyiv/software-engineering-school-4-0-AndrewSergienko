@@ -1,4 +1,4 @@
-package adapters
+package currency_rate
 
 import (
 	"github.com/stretchr/testify/suite"

@@ -1,4 +1,4 @@
-package adapters
+package currency_rate
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type Currency struct {
+type CurrencyResponse struct {
 	R030         int     `json:"r030"`
 	Txt          string  `json:"txt"`
 	Rate         float32 `json:"rate"`
@@ -16,9 +16,13 @@ type Currency struct {
 	ExchangeDate string  `json:"exchangedate"`
 }
 
+type CurrencyDTO struct {
+	currency string
+	rate     float32
+}
+
 type APICurrencyReader struct {
-	APIURL       string
-	CurrencyCode string
+	APIURL string
 }
 
 func NewAPICurrencyReader(settings infrastructure.CurrencyAPISettings) *APICurrencyReader {
@@ -33,6 +37,7 @@ func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	defer func(Body io.ReadCloser) {
 		err = Body.Close()
 		if err != nil {
@@ -45,7 +50,7 @@ func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
 		return 0, err
 	}
 
-	var currencies []Currency
+	var currencies []CurrencyResponse
 	err = json.Unmarshal(body, &currencies)
 	if err != nil {
 		return 0, err
@@ -58,4 +63,35 @@ func (cr *APICurrencyReader) GetUSDCurrencyRate() (float32, error) {
 	}
 
 	return 0, fmt.Errorf("currency not found")
+}
+
+func (cr *APICurrencyReader) GetAllCurrencyRates() (*[]CurrencyDTO, error) {
+	resp, err := http.Get(cr.APIURL)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(Body io.ReadCloser) {
+		err = Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var currencies []CurrencyResponse
+	if json.Unmarshal(body, &currencies) != nil {
+		return nil, err
+	}
+
+	var currenciesRate []CurrencyDTO
+
+	for _, currency := range currencies {
+		currenciesRate = append(currenciesRate, CurrencyDTO{currency: currency.CC, rate: currency.Rate})
+	}
+	return &currenciesRate, nil
 }

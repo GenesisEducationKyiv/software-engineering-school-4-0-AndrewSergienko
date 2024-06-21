@@ -2,6 +2,7 @@ package main
 
 import (
 	"go_service/internal/adapters"
+	"go_service/internal/adapters/currency_rate"
 	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
@@ -20,7 +21,7 @@ func main() {
 	subscriberAdapter := adapters.NewSubscribersAdapter(db)
 	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
 	emailAdapter := adapters.NewEmailAdapter(emailSettings)
-	currencyReader := adapters.NewAPICurrencyReader(currencyAPISettings)
+	currencyReader := currency_rate.NewAPICurrencyReader(currencyAPISettings)
 
 	// background send mail task
 	rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
