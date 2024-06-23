@@ -21,13 +21,14 @@ func main() {
 	subscriberAdapter := adapters.NewSubscribersAdapter(db)
 	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
 	emailAdapter := adapters.NewEmailAdapter(emailSettings)
-	currencyReader := currency_rate.NewAPICurrencyReader(currencyAPISettings)
+	readers := currency_rate.CreateReaders(currencyAPISettings)
+	currencyReader := currency_rate.NewAPIReaderFacade(readers)
 
 	// background send mail task
 	rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
 
 	// web app
-	webApp := app.InitWebApp(currencyReader, subscriberAdapter)
+	webApp := app.InitWebApp(*currencyReader, subscriberAdapter)
 
 	// starting services
 	go rateMailer.Run()

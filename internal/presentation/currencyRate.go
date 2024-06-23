@@ -5,7 +5,7 @@ import (
 )
 
 type CurrencyGateway interface {
-	GetUSDCurrencyRate() (float32, error)
+	GetCurrencyRate(from string, to string) (float32, error)
 }
 
 type CurrencyHandlers struct {
@@ -17,7 +17,10 @@ func NewCurrencyHandlers(currencyGateway CurrencyGateway) CurrencyHandlers {
 }
 
 func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
-	rate, err := ch.currencyGateway.GetUSDCurrencyRate()
+	from := c.Query("from")
+	to := c.Query("to", "UAH")
+
+	rate, err := ch.currencyGateway.GetCurrencyRate(from, to)
 
 	if err != nil {
 		return fiber.ErrInternalServerError
