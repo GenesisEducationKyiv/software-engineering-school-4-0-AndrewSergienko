@@ -1,12 +1,8 @@
 package readers
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -25,35 +21,12 @@ func NewCurrencyAPICurrencyReader(url string) *CurrencyAPICurrencyReader {
 }
 
 func (cr *CurrencyAPICurrencyReader) GetCurrencyRate(from string, to string) (float32, error) {
-	parsedURL, err := url.Parse(cr.APIURL + "&base_currency=" + strings.ToUpper(from))
+	data, err := ReadHTTP(cr.APIURL + "&base_currency=" + strings.ToUpper(from))
 	if err != nil {
 		return 0, err
 	}
 
-	resp, err := http.Get(parsedURL.String())
-	if err != nil {
-		return 0, err
-	}
-
-	defer func(Body io.ReadCloser) {
-		err = Body.Close()
-		if err != nil {
-			return
-		}
-	}(resp.Body)
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return 0, err
-	}
-
-	var data map[string]interface{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return 0, err
-	}
-
-	if rates, ok := data["data"].(map[string]interface{}); ok {
+	if rates, ok := (*data)["data"].(map[string]interface{}); ok {
 		if rate, ok := rates[strings.ToUpper(to)].(map[string]interface{}); ok {
 			if value, ok := rate["value"].(float64); ok {
 				log.Printf("INFO: CurrencyAPICurrencyReade: rate %.2f", value)

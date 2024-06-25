@@ -1,12 +1,8 @@
 package readers
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -28,35 +24,12 @@ func (cr *FawazaAPICurrencyReader) GetCurrencyRate(from string, to string) (floa
 	from = strings.ToLower(from)
 	to = strings.ToLower(to)
 
-	parsedURL, err := url.Parse(cr.APIURL + strings.ToLower(from) + ".json")
+	data, err := ReadHTTP(cr.APIURL + strings.ToLower(from) + ".json")
 	if err != nil {
 		return 0, err
 	}
 
-	resp, err := http.Get(parsedURL.String())
-	if err != nil {
-		return 0, err
-	}
-
-	defer func(Body io.ReadCloser) {
-		err = Body.Close()
-		if err != nil {
-			return
-		}
-	}(resp.Body)
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return 0, err
-	}
-
-	var data map[string]interface{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return 0, err
-	}
-
-	if rates, ok := data[from].(map[string]interface{}); ok {
+	if rates, ok := (*data)[from].(map[string]interface{}); ok {
 		if rate, ok := rates[to].(float64); ok {
 			log.Printf("INFO: FawazaAPICurrencyReader: rate %.2f", rate)
 			return float32(rate), nil
