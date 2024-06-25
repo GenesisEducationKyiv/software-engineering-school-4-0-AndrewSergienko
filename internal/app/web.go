@@ -7,7 +7,10 @@ import (
 	"go_service/internal/presentation"
 )
 
-func InitWebApp(currencyGateway currencyrate.APIReaderFacade, subscriberGateway *adapters.SubscriberAdapter) *fiber.App {
+func InitWebApp(
+	currencyGateway currencyrate.APIReaderFacade,
+	subscriberGateway *adapters.SubscriberAdapter,
+) *fiber.App {
 	app := fiber.New()
 
 	currencyHandlers := presentation.NewCurrencyHandlers(&currencyGateway)
