@@ -7,8 +7,8 @@ import (
 	"net/url"
 )
 
-func ReadHTTP(URL string) (*map[string]interface{}, error) {
-	parsedURL, err := url.Parse(URL)
+func ReadHTTP(rawURL string) (*map[string]interface{}, error) {
+	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
 	}
