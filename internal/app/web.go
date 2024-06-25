@@ -3,11 +3,11 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"go_service/internal/adapters"
-	"go_service/internal/adapters/currency_rate"
+	"go_service/internal/adapters/currencyrate"
 	"go_service/internal/presentation"
 )
 
-func InitWebApp(currencyGateway currency_rate.APIReaderFacade, subscriberGateway *adapters.SubscriberAdapter) *fiber.App {
+func InitWebApp(currencyGateway currencyrate.APIReaderFacade, subscriberGateway *adapters.SubscriberAdapter) *fiber.App {
 	app := fiber.New()
 
 	currencyHandlers := presentation.NewCurrencyHandlers(&currencyGateway)

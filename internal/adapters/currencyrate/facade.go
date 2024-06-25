@@ -1,4 +1,4 @@
-package currency_rate
+package currencyrate
 
 type APIReaderFacade struct {
 	readers []APICurrencyReader

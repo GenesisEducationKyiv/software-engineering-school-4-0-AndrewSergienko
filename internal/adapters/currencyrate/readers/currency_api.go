@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -24,9 +25,12 @@ func NewCurrencyAPICurrencyReader(url string) *CurrencyAPICurrencyReader {
 }
 
 func (cr *CurrencyAPICurrencyReader) GetCurrencyRate(from string, to string) (float32, error) {
-	url := cr.APIURL + "&base_currency=" + strings.ToUpper(from)
+	parsedURL, err := url.Parse(cr.APIURL + "&base_currency=" + strings.ToUpper(from))
+	if err != nil {
+		return 0, err
+	}
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(parsedURL.String())
 	if err != nil {
 		return 0, err
 	}

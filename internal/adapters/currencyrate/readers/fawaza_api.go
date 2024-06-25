@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 type FawazaAPICurrencyReader struct {
@@ -23,7 +25,15 @@ func NewFawazaAPICurrencyReader(url string) *FawazaAPICurrencyReader {
 }
 
 func (cr *FawazaAPICurrencyReader) GetCurrencyRate(from string, to string) (float32, error) {
-	resp, err := http.Get(cr.APIURL + from + ".json")
+	from = strings.ToLower(from)
+	to = strings.ToLower(to)
+
+	parsedURL, err := url.Parse(cr.APIURL + strings.ToLower(from) + ".json")
+	if err != nil {
+		return 0, err
+	}
+
+	resp, err := http.Get(parsedURL.String())
 	if err != nil {
 		return 0, err
 	}

@@ -1,7 +1,7 @@
-package currency_rate
+package currencyrate
 
 import (
-	readers2 "go_service/internal/adapters/currency_rate/readers"
+	readers2 "go_service/internal/adapters/currencyrate/readers"
 	"go_service/internal/infrastructure"
 )
 
