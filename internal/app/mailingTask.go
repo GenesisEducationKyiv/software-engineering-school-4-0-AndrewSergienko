@@ -68,7 +68,7 @@ func (ms RateMailer) RunSending() {
 
 func (ms RateMailer) SendRateToAll() error {
 	subscribers := ms.subscriberGateway.GetAll()
-	rate, err := ms.currencyGateway.GetCurrencyRate("", "")
+	rate, err := ms.currencyGateway.GetCurrencyRate("USD", "UAH")
 	if err != nil {
 		return err
 	}

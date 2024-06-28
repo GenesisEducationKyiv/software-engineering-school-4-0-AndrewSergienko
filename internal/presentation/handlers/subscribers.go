@@ -1,19 +1,17 @@
-package presentation
+package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/infrastructure/database/models"
+	"go_service/internal/services"
 	"net/mail"
 )
 
-type SubscriberGateway interface {
-	Create(email string) error
-	Delete(id int) error
-	GetByEmail(email string) *models.Subscriber
-}
-
 type SubscribersHandlers struct {
 	subscriberGateway SubscriberGateway
+}
+
+type Interactor[T, U any] interface {
+	Handle(data T) (U, error)
 }
 
 func NewSubscribersHandlers(subscriberGateway SubscriberGateway) *SubscribersHandlers {
@@ -32,16 +30,11 @@ func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
 	}
 
 	if !isValidEmail(requestData.Email) {
-		return fiber.ErrBadRequest
+		return nil
 	}
 
-	if sh.subscriberGateway.GetByEmail(requestData.Email) != nil {
-		return fiber.ErrConflict
-	}
+	var interactor Interactor[string, error] = services.NewSubscribe()
 
-	if sh.subscriberGateway.Create(requestData.Email) != nil {
-		return fiber.ErrInternalServerError
-	}
 	return c.SendStatus(fiber.StatusOK)
 }
 

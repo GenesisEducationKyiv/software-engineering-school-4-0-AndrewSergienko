@@ -15,8 +15,6 @@ jobs:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: goservice
-      CURRENCY_CODE: USD
-      CURRENCY_RATE_URL: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json
       DB_PORT: 5432
       DB_HOST: localhost
       EMAIL: test@mail.com
