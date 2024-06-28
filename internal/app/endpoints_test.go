@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/dig"
 	"go_service/internal/adapters"
-	"go_service/internal/adapters/currencyrate"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
-	"go_service/internal/presentation"
 	"gorm.io/gorm"
 	"net/http/httptest"
 	"testing"
@@ -16,10 +15,10 @@ import (
 
 type SubscribersPresentationSuite struct {
 	suite.Suite
-	db                *gorm.DB
-	transaction       *gorm.DB
-	subscriberGateway presentation.SubscriberGateway
-	webApp            *fiber.App
+	db          *gorm.DB
+	transaction *gorm.DB
+	container   *dig.Container
+	webApp      *fiber.App
 }
 
 func (suite *SubscribersPresentationSuite) SetupSuite() {
@@ -31,12 +30,11 @@ func (suite *SubscribersPresentationSuite) SetupSuite() {
 func (suite *SubscribersPresentationSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
-	readers := currencyrate.CreateReaders(currencyAPISettings)
-	currencyGateway := currencyrate.NewAPIReaderFacade(readers)
-	subscriberGateway := adapters.NewSubscribersAdapter(suite.transaction)
+	emailSettings := infrastructure.EmailSettings{}
 
-	suite.subscriberGateway = subscriberGateway
-	suite.webApp = InitWebApp(*currencyGateway, subscriberGateway)
+	container := SetupContainer(suite.transaction, emailSettings, currencyAPISettings)
+
+	suite.webApp = InitWebApp(container)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {
@@ -53,7 +51,11 @@ func (suite *SubscribersPresentationSuite) TestAddSubscriber() {
 	suite.Require().NoError(err, "Error executing request")
 
 	suite.Require().Equal("200 OK", resp.Status)
-	suite.NotNil(suite.subscriberGateway.GetByEmail("test@gmail.com"))
+
+	suite.container.Invoke(func(gateway adapters.SubscriberAdapter) {
+		suite.NotNil(gateway.GetByEmail("test@gmail.com"))
+	})
+
 }
 
 func (suite *SubscribersPresentationSuite) TestGetCurrency() {

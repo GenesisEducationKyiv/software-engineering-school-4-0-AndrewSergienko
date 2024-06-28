@@ -1,21 +1,23 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gofiber/fiber/v2"
+	"go_service/internal/app"
 	"go_service/internal/services"
 	"net/mail"
 )
 
+type Subscribe interface {
+	Handle(data services.SubscribeInputDTO) error
+}
+
 type SubscribersHandlers struct {
-	subscriberGateway SubscriberGateway
+	container *app.IoC
 }
 
-type Interactor[T, U any] interface {
-	Handle(data T) (U, error)
-}
-
-func NewSubscribersHandlers(subscriberGateway SubscriberGateway) *SubscribersHandlers {
-	return &SubscribersHandlers{subscriberGateway}
+func NewSubscribersHandlers(container *app.IoC) *SubscribersHandlers {
+	return &SubscribersHandlers{container}
 }
 
 func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
@@ -30,11 +32,22 @@ func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
 	}
 
 	if !isValidEmail(requestData.Email) {
-		return nil
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid Email",
+		})
 	}
 
-	var interactor Interactor[string, error] = services.NewSubscribe()
+	interactor := sh.container.Subscribe()
+	result := interactor.Handle(services.SubscribeInputDTO{Email: requestData.Email})
 
+	if result.Err != nil {
+		if errors.Is(result.Err, &services.EmailConflictError{}) {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"error": "Email already exists",
+			})
+		}
+		return fiber.ErrInternalServerError
+	}
 	return c.SendStatus(fiber.StatusOK)
 }
 

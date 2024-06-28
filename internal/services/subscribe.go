@@ -1,9 +1,16 @@
 package services
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"go_service/internal/infrastructure/database/models"
 )
+
+type SubscribeInputDTO struct {
+	Email string
+}
+
+type SubscribeOutputDTO struct {
+	Err error
+}
 
 type SubscriberGateway interface {
 	Create(email string) error
@@ -19,13 +26,10 @@ func NewSubscribe(sg SubscriberGateway) *Subscribe {
 	return &Subscribe{subscriberGateway: sg}
 }
 
-func (s *Subscribe) Handle(data string) error {
-	if sh.subscriberGateway.GetByEmail(requestData.Email) != nil {
-		return fiber.ErrConflict
+func (s *Subscribe) Handle(data SubscribeInputDTO) SubscribeOutputDTO {
+	if s.subscriberGateway.GetByEmail(data.Email) != nil {
+		return SubscribeOutputDTO{&EmailConflictError{data.Email}}
 	}
 
-	if sh.subscriberGateway.Create(requestData.Email) != nil {
-		return fiber.ErrInternalServerError
-	}
-	return s.subscriberGateway.Create(email)
+	return SubscribeOutputDTO{s.subscriberGateway.Create(data.Email)}
 }

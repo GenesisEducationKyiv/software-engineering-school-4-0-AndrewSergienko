@@ -1,9 +1,6 @@
 package main
 
 import (
-	"go.uber.org/dig"
-	"go_service/internal/adapters"
-	"go_service/internal/adapters/currencyrate"
 	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
@@ -11,8 +8,6 @@ import (
 )
 
 func main() {
-	container := dig.New()
-
 	// app configuration
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 	databaseSettings := infrastructure.GetDatabaseSettings()
@@ -20,30 +15,15 @@ func main() {
 
 	db := database.InitDatabase(databaseSettings)
 
-	container.Provide(func() *adapters.SubscriberAdapter {
-		return adapters.NewSubscribersAdapter(db)
-	})
-
-	container.Provide(func() *adapters.ScheduleDBAdapter {
-		return adapters.NewScheduleDBAdapter(db)
-	})
-
-	container.Provide(func() adapters.EmailAdapter {
-		return adapters.NewEmailAdapter(emailSettings)
-	})
-
-	container.Provide(func() *currencyrate.APIReaderFacade {
-		readers := currencyrate.CreateReaders(currencyAPISettings)
-		return currencyrate.NewAPIReaderFacade(readers)
-	})
+	container := app.NewIoC(db, emailSettings, currencyAPISettings)
 
 	// background send mail task
 	//rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
 
 	// web app
-	webApp := app.InitWebApp(*currencyReader, subscriberAdapter)
+	webApp := app.InitWebApp(container)
 
 	// starting services
-	go rateMailer.Run()
+	//go rateMailer.Run()
 	log.Fatalf("App failed with error: %v", webApp.Listen(":8080"))
 }

@@ -1,8 +1,13 @@
 package services
 
 type GetCurrencyRateInputDTO struct {
-	from string
-	to   string
+	From string
+	To   string
+}
+
+type GetCurrencyRateOutputDTO struct {
+	Result float32
+	Err    error
 }
 
 type CurrencyGateway interface {
@@ -13,6 +18,11 @@ type GetCurrencyRate struct {
 	currencyGateway CurrencyGateway
 }
 
-func (s *GetCurrencyRate) Handle(data GetCurrencyRateInputDTO) (float32, error) {
-	return s.currencyGateway.GetCurrencyRate(data.from, data.to)
+func NewGetCurrencyRate(currencyGateway CurrencyGateway) *GetCurrencyRate {
+	return &GetCurrencyRate{currencyGateway: currencyGateway}
+}
+
+func (s *GetCurrencyRate) Handle(data GetCurrencyRateInputDTO) GetCurrencyRateOutputDTO {
+	result, err := s.currencyGateway.GetCurrencyRate(data.From, data.To)
+	return GetCurrencyRateOutputDTO{Result: result, Err: err}
 }
