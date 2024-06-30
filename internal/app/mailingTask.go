@@ -20,7 +20,7 @@ type EmailGateway interface {
 }
 
 type CurrencyGateway interface {
-	GetUSDCurrencyRate() (float32, error)
+	GetCurrencyRate(from string, to string) (float32, error)
 }
 
 type RateMailer struct {
@@ -68,7 +68,7 @@ func (ms RateMailer) RunSending() {
 
 func (ms RateMailer) SendRateToAll() error {
 	subscribers := ms.subscriberGateway.GetAll()
-	rate, err := ms.currencyGateway.GetUSDCurrencyRate()
+	rate, err := ms.currencyGateway.GetCurrencyRate("", "")
 	if err != nil {
 		return err
 	}
