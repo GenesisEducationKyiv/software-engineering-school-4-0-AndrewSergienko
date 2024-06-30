@@ -4,13 +4,10 @@ import (
 	"go_service/internal/adapters"
 	"go_service/internal/adapters/currencyrate"
 	"go_service/internal/infrastructure"
+	"go_service/internal/presentation"
 	"go_service/internal/services"
 	"gorm.io/gorm"
 )
-
-type Interactor[InputDTO, OutputDTO any] interface {
-	Handle(data InputDTO) OutputDTO
-}
 
 type IoC struct {
 	subscriberAdapter  *adapters.SubscriberAdapter
@@ -26,17 +23,27 @@ func NewIoC(
 ) *IoC {
 	readers := currencyrate.CreateReaders(currencyAPISettings)
 	return &IoC{
-		subscriberAdapter:  adapters.NewSubscribersAdapter(db),
+		subscriberAdapter:  adapters.NewSubscriberAdapter(db),
 		scheduleAdapter:    adapters.NewScheduleDBAdapter(db),
 		emailAdapter:       adapters.NewEmailAdapter(emailSettings),
 		currencyRateFacade: currencyrate.NewAPIReaderFacade(readers),
 	}
 }
 
-func (ioc *IoC) Subscribe() Interactor[services.SubscribeInputDTO, services.SubscribeOutputDTO] {
+func (ioc *IoC) Subscribe() presentation.Interactor[services.SubscribeInputDTO, services.SubscribeOutputDTO] {
 	return services.NewSubscribe(ioc.subscriberAdapter)
 }
 
-func (ioc *IoC) GetCurrencyRate() *services.GetCurrencyRate {
+func (ioc *IoC) GetCurrencyRate() presentation.Interactor[
+	services.GetCurrencyRateInputDTO,
+	services.GetCurrencyRateOutputDTO,
+] {
 	return services.NewGetCurrencyRate(ioc.currencyRateFacade)
+}
+
+func (ioc *IoC) SendNotification() presentation.Interactor[
+	services.SendNotificationInputDTO,
+	services.SendNotificationOutputDTO,
+] {
+	return services.NewSendNotification(ioc.emailAdapter, ioc.subscriberAdapter, ioc.currencyRateFacade)
 }

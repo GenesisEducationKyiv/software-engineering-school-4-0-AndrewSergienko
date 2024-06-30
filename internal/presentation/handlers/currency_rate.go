@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/app"
+	"go_service/internal/presentation"
 	"go_service/internal/services"
 )
 
@@ -12,10 +12,10 @@ type GetCurrencyRate interface {
 }
 
 type CurrencyHandlers struct {
-	container *app.IoC
+	container presentation.InteractorFactory
 }
 
-func NewCurrencyHandlers(container *app.IoC) CurrencyHandlers {
+func NewCurrencyHandlers(container presentation.InteractorFactory) CurrencyHandlers {
 	return CurrencyHandlers{container}
 }
 

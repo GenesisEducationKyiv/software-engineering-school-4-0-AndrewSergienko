@@ -3,20 +3,20 @@ package handlers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/app"
+	"go_service/internal/presentation"
 	"go_service/internal/services"
 	"net/mail"
 )
 
 type Subscribe interface {
-	Handle(data services.SubscribeInputDTO) error
+	Handle(data services.SubscribeInputDTO) services.SubscribeOutputDTO
 }
 
 type SubscribersHandlers struct {
-	container *app.IoC
+	container presentation.InteractorFactory
 }
 
-func NewSubscribersHandlers(container *app.IoC) *SubscribersHandlers {
+func NewSubscribersHandlers(container presentation.InteractorFactory) *SubscribersHandlers {
 	return &SubscribersHandlers{container}
 }
 

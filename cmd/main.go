@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go_service/internal/adapters"
 	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
@@ -16,14 +17,15 @@ func main() {
 	db := database.InitDatabase(databaseSettings)
 
 	container := app.NewIoC(db, emailSettings, currencyAPISettings)
+	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
 
 	// background send mail task
-	//rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
+	rateMailer := app.InitRateMailer(container, schedulerAdapter)
 
 	// web app
 	webApp := app.InitWebApp(container)
 
 	// starting services
-	//go rateMailer.Run()
+	go rateMailer.Run()
 	log.Fatalf("App failed with error: %v", webApp.Listen(":8080"))
 }
