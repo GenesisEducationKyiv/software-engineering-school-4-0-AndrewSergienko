@@ -2,7 +2,6 @@ package main
 
 import (
 	"go_service/internal/adapters"
-	"go_service/internal/adapters/currencyrate"
 	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
@@ -17,18 +16,14 @@ func main() {
 
 	db := database.InitDatabase(databaseSettings)
 
-	// initializing adapters
-	subscriberAdapter := adapters.NewSubscribersAdapter(db)
+	container := app.NewIoC(db, emailSettings, currencyAPISettings)
 	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
-	emailAdapter := adapters.NewEmailAdapter(emailSettings)
-	readers := currencyrate.CreateReaders(currencyAPISettings)
-	currencyReader := currencyrate.NewAPIReaderFacade(readers)
 
 	// background send mail task
-	rateMailer := app.InitRateMailer(emailAdapter, subscriberAdapter, schedulerAdapter, currencyReader)
+	rateMailer := app.InitRateMailer(container, schedulerAdapter)
 
 	// web app
-	webApp := app.InitWebApp(*currencyReader, subscriberAdapter)
+	webApp := app.InitWebApp(container)
 
 	// starting services
 	go rateMailer.Run()

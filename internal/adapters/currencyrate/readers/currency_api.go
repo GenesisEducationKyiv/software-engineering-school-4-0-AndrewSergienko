@@ -1,7 +1,7 @@
 package readers
 
 import (
-	"fmt"
+	"go_service/internal/services"
 	"log"
 	"strings"
 )
@@ -35,5 +35,5 @@ func (cr *CurrencyAPICurrencyReader) GetCurrencyRate(from string, to string) (fl
 		}
 	}
 
-	return 0, fmt.Errorf("currency not found")
+	return 0, &services.CurrencyNotExistsError{Currency: from, Source: "CurrencyAPI"}
 }

@@ -10,7 +10,7 @@ export let options = {
 };
 
 export default function () {
-  let res = http.get('http://web:8080/');
+  let res = http.get('http://web:8080/?from=USD');
   check(res, { 'status was 200': (r) => r.status == 200 });
   sleep(1);
 }
