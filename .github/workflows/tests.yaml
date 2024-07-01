@@ -20,6 +20,9 @@ jobs:
       EMAIL: test@mail.com
       EMAIL_PASSWORD: password
       EMAIL_HOST: localhost
+      FAWAZA_API_URL: ${{ secrets.FAWAZA_API_URL }}
+      CURRENCY_API_URL: ${{ secrets.CURRENCY_API_URL }}
+      EXCHANGERATE_API_URL: ${{ secrets.EXCHANGERATE_API_URL }}
 
     services:
       postgres:
