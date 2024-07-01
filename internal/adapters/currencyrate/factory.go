@@ -1,7 +1,7 @@
 package currencyrate
 
 import (
-	readers2 "go_service/internal/adapters/currencyrate/readers"
+	"go_service/internal/adapters/currencyrate/readers"
 	"go_service/internal/infrastructure"
 )
 
@@ -10,21 +10,21 @@ type APICurrencyReader interface {
 }
 
 func CreateReaders(settings infrastructure.CurrencyAPISettings) []APICurrencyReader {
-	var readers []APICurrencyReader
+	var apiReaders []APICurrencyReader
 
-	fawazaAPIReader := readers2.NewFawazaAPICurrencyReader(settings.FawazaAPIURL)
-	currencyAPIReader := readers2.NewCurrencyAPICurrencyReader(settings.CurrencyAPIURL)
-	exchangerateAPIReader := readers2.NewExchangerateAPICurrencyReader(settings.ExchangerateAPIURL)
+	fawazaAPIReader := readers.NewFawazaAPICurrencyReader(settings.FawazaAPIURL)
+	currencyAPIReader := readers.NewCurrencyAPICurrencyReader(settings.CurrencyAPIURL)
+	exchangerateAPIReader := readers.NewExchangerateAPICurrencyReader(settings.ExchangerateAPIURL)
 
 	// TODO: eliminate the violation of the Open/Close principle
 	if fawazaAPIReader != nil {
-		readers = append(readers, fawazaAPIReader)
+		apiReaders = append(apiReaders, fawazaAPIReader)
 	}
 	if currencyAPIReader != nil {
-		readers = append(readers, currencyAPIReader)
+		apiReaders = append(apiReaders, currencyAPIReader)
 	}
 	if exchangerateAPIReader != nil {
-		readers = append(readers, exchangerateAPIReader)
+		apiReaders = append(apiReaders, exchangerateAPIReader)
 	}
-	return readers
+	return apiReaders
 }
