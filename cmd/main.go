@@ -1,10 +1,10 @@
 package main
 
 import (
-	"go_service/internal/adapters"
 	"go_service/internal/app"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
+	"go_service/internal/notifier/adapters"
 	"log"
 )
 

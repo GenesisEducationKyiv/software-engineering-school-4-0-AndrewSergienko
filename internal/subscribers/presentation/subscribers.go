@@ -1,22 +1,22 @@
-package handlers
+package presentation
 
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/presentation"
-	"go_service/internal/services"
+	"go_service/internal"
+	services2 "go_service/internal/subscribers/services"
 	"net/mail"
 )
 
 type Subscribe interface {
-	Handle(data services.SubscribeInputDTO) services.SubscribeOutputDTO
+	Handle(data services2.SubscribeInputDTO) services2.SubscribeOutputDTO
 }
 
 type SubscribersHandlers struct {
-	container presentation.InteractorFactory
+	container InteractorFactory
 }
 
-func NewSubscribersHandlers(container presentation.InteractorFactory) *SubscribersHandlers {
+func NewSubscribersHandlers(container InteractorFactory) *SubscribersHandlers {
 	return &SubscribersHandlers{container}
 }
 
@@ -38,10 +38,10 @@ func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
 	}
 
 	interactor := sh.container.Subscribe()
-	result := interactor.Handle(services.SubscribeInputDTO{Email: requestData.Email})
+	result := interactor.Handle(services2.SubscribeInputDTO{Email: requestData.Email})
 
 	if result.Err != nil {
-		if errors.Is(result.Err, &services.EmailConflictError{}) {
+		if errors.Is(result.Err, &internal.EmailConflictError{}) {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 				"error": "Email already exists",
 			})

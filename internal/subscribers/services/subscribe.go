@@ -1,6 +1,7 @@
 package services
 
 import (
+	"go_service/internal"
 	"go_service/internal/infrastructure/database/models"
 )
 
@@ -28,7 +29,7 @@ func NewSubscribe(sg SubscriberGateway) *Subscribe {
 
 func (s *Subscribe) Handle(data SubscribeInputDTO) SubscribeOutputDTO {
 	if s.subscriberGateway.GetByEmail(data.Email) != nil {
-		return SubscribeOutputDTO{&EmailConflictError{data.Email}}
+		return SubscribeOutputDTO{&internal.EmailConflictError{data.Email}}
 	}
 
 	return SubscribeOutputDTO{s.subscriberGateway.Create(data.Email)}
