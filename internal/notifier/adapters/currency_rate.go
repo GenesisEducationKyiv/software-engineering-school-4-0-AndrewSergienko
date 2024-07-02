@@ -16,8 +16,8 @@ type CurrencyRateAdapter struct {
 	currencyApp *fiber.App
 }
 
-func NewCurrencyRateAdapter() CurrencyRateAdapter {
-	return CurrencyRateAdapter{}
+func NewCurrencyRateAdapter(currencyApp *fiber.App) CurrencyRateAdapter {
+	return CurrencyRateAdapter{currencyApp: currencyApp}
 }
 
 func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (float32, error) {

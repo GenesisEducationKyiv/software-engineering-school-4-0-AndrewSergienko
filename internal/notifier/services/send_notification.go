@@ -13,7 +13,7 @@ type EmailGateway interface {
 	Send(target string, rate float32) error
 }
 
-type CurrencyGateway interface {
+type CurrencyRateGateway interface {
 	GetCurrencyRate(from string, to string) (float32, error)
 }
 
@@ -29,13 +29,13 @@ type SendNotificationOutputDTO struct {
 type SendNotification struct {
 	emailGateway      EmailGateway
 	subscriberGateway SubscriberGateway
-	currencyGateway   CurrencyGateway
+	currencyGateway   CurrencyRateGateway
 }
 
 func NewSendNotification(
 	emailGateway EmailGateway,
 	subscriberGateway SubscriberGateway,
-	currencyGateway CurrencyGateway,
+	currencyGateway CurrencyRateGateway,
 ) *SendNotification {
 	return &SendNotification{
 		emailGateway:      emailGateway,

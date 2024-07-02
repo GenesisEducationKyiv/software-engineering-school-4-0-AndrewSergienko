@@ -67,7 +67,7 @@ package app
 //
 //func (ms RateMailer) SendRateToAll() error {
 //	interactor := ms.container.SendNotification()
-//	return interactor.Handle(services.SendNotificationInputDTO{From: "USD", To: "UAH"}).Err
+//	return interactor.HandleRequest(services.SendNotificationInputDTO{From: "USD", To: "UAH"}).Err
 //}
 //
 //func (RateMailer) GetNextTime(lt *time.Time) time.Time {

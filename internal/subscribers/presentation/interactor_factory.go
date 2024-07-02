@@ -1,7 +1,8 @@
 package presentation
 
 import (
-	services3 "go_service/internal/subscribers/services"
+	"go_service/internal/subscribers/services/get_all"
+	"go_service/internal/subscribers/services/subscribe"
 )
 
 type Interactor[InputDTO, OutputDTO any] interface {
@@ -9,5 +10,6 @@ type Interactor[InputDTO, OutputDTO any] interface {
 }
 
 type InteractorFactory interface {
-	Subscribe() Interactor[services3.SubscribeInputDTO, services3.SubscribeOutputDTO]
+	Subscribe() Interactor[subscribe.InputDTO, subscribe.OutputDTO]
+	GetAll() Interactor[get_all.InputDTO, get_all.OutputDTO]
 }

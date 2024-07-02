@@ -1,14 +1,15 @@
-package services
+package subscribe
 
 import (
 	"go_service/internal/infrastructure/database/models"
+	"go_service/internal/subscribers/services"
 )
 
-type SubscribeInputDTO struct {
+type InputDTO struct {
 	Email string
 }
 
-type SubscribeOutputDTO struct {
+type OutputDTO struct {
 	Err error
 }
 
@@ -26,10 +27,10 @@ func NewSubscribe(sg SubscriberGateway) *Subscribe {
 	return &Subscribe{subscriberGateway: sg}
 }
 
-func (s *Subscribe) Handle(data SubscribeInputDTO) SubscribeOutputDTO {
+func (s *Subscribe) Handle(data InputDTO) OutputDTO {
 	if s.subscriberGateway.GetByEmail(data.Email) != nil {
-		return SubscribeOutputDTO{Err: &EmailConflictError{Email: data.Email}}
+		return OutputDTO{Err: &services.EmailConflictError{Email: data.Email}}
 	}
 
-	return SubscribeOutputDTO{s.subscriberGateway.Create(data.Email)}
+	return OutputDTO{s.subscriberGateway.Create(data.Email)}
 }
