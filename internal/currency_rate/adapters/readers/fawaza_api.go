@@ -1,7 +1,7 @@
 package readers
 
 import (
-	"go_service/internal"
+	"go_service/internal/currency_rate/services"
 	"log"
 	"strings"
 )
@@ -36,5 +36,5 @@ func (cr *FawazaAPICurrencyReader) GetCurrencyRate(from string, to string) (floa
 		}
 	}
 
-	return 0, &internal.CurrencyNotExistsError{Currency: from, Source: "FawazaAPI"}
+	return 0, &services.CurrencyNotExistsError{Currency: from, Source: "FawazaAPI"}
 }

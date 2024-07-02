@@ -1,7 +1,7 @@
 package readers
 
 import (
-	"go_service/internal"
+	"go_service/internal/currency_rate/services"
 	"log"
 	"strings"
 )
@@ -33,5 +33,5 @@ func (cr *ExchangerateAPICurrencyReader) GetCurrencyRate(from string, to string)
 		}
 	}
 
-	return 0, &internal.CurrencyNotExistsError{Currency: from, Source: "ExchangerateAPI"}
+	return 0, &services.CurrencyNotExistsError{Currency: from, Source: "ExchangerateAPI"}
 }

@@ -1,16 +1,12 @@
 package app
 
 import (
-	"go_service/internal"
 	adapters3 "go_service/internal/currency_rate/adapters"
-	currencyRatePresentation "go_service/internal/currency_rate/presentation"
-	services2 "go_service/internal/currency_rate/services"
 	"go_service/internal/infrastructure"
+	"go_service/internal/notifier"
 	adapters4 "go_service/internal/notifier/adapters"
 	"go_service/internal/notifier/services"
 	adapters2 "go_service/internal/subscribers/adapters"
-	subscribersPresentation "go_service/internal/subscribers/presentation"
-	services3 "go_service/internal/subscribers/services"
 	"gorm.io/gorm"
 )
 
@@ -35,18 +31,7 @@ func NewIoC(
 	}
 }
 
-func (ioc *IoC) Subscribe() subscribersPresentation.Interactor[services3.SubscribeInputDTO, services3.SubscribeOutputDTO] {
-	return services3.NewSubscribe(ioc.subscriberAdapter)
-}
-
-func (ioc *IoC) GetCurrencyRate() currencyRatePresentation.Interactor[
-	services2.GetCurrencyRateInputDTO,
-	services2.GetCurrencyRateOutputDTO,
-] {
-	return services2.NewGetCurrencyRate(ioc.currencyRateFacade)
-}
-
-func (ioc *IoC) SendNotification() internal.Interactor[
+func (ioc *IoC) SendNotification() notifier.Interactor[
 	services.SendNotificationInputDTO,
 	services.SendNotificationOutputDTO,
 ] {

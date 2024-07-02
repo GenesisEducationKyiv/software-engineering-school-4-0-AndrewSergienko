@@ -5,15 +5,15 @@ import (
 	"log"
 )
 
-type SendNotificationSubscriberGateway interface {
+type SubscriberGateway interface {
 	GetAll() []models.Subscriber
 }
 
-type SendNotificationEmailGateway interface {
+type EmailGateway interface {
 	Send(target string, rate float32) error
 }
 
-type SendNotificationCurrencyGateway interface {
+type CurrencyGateway interface {
 	GetCurrencyRate(from string, to string) (float32, error)
 }
 
@@ -27,15 +27,15 @@ type SendNotificationOutputDTO struct {
 }
 
 type SendNotification struct {
-	emailGateway      SendNotificationEmailGateway
-	subscriberGateway SendNotificationSubscriberGateway
-	currencyGateway   SendNotificationCurrencyGateway
+	emailGateway      EmailGateway
+	subscriberGateway SubscriberGateway
+	currencyGateway   CurrencyGateway
 }
 
 func NewSendNotification(
-	emailGateway SendNotificationEmailGateway,
-	subscriberGateway SendNotificationSubscriberGateway,
-	currencyGateway SendNotificationCurrencyGateway,
+	emailGateway EmailGateway,
+	subscriberGateway SubscriberGateway,
+	currencyGateway CurrencyGateway,
 ) *SendNotification {
 	return &SendNotification{
 		emailGateway:      emailGateway,

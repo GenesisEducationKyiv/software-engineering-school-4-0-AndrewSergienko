@@ -3,13 +3,12 @@ package presentation
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal"
-	services2 "go_service/internal/subscribers/services"
+	"go_service/internal/subscribers/services"
 	"net/mail"
 )
 
 type Subscribe interface {
-	Handle(data services2.SubscribeInputDTO) services2.SubscribeOutputDTO
+	Handle(data services.SubscribeInputDTO) services.SubscribeOutputDTO
 }
 
 type SubscribersHandlers struct {
@@ -38,10 +37,10 @@ func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
 	}
 
 	interactor := sh.container.Subscribe()
-	result := interactor.Handle(services2.SubscribeInputDTO{Email: requestData.Email})
+	result := interactor.Handle(services.SubscribeInputDTO{Email: requestData.Email})
 
 	if result.Err != nil {
-		if errors.Is(result.Err, &internal.EmailConflictError{}) {
+		if errors.Is(result.Err, &services.EmailConflictError{}) {
 			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 				"error": "Email already exists",
 			})
