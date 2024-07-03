@@ -2,14 +2,12 @@ package adapters
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
-	"net/url"
 )
 
-type SubscriberResponse struct {
-	Emails []string `json:"emails"`
+type Subscriber struct {
+	Email string `json:"Email"`
 }
 
 type SubscriberAdapter struct {
@@ -20,12 +18,12 @@ func NewSubscriberAdapter(subscriberApp *fiber.App) SubscriberAdapter {
 	return SubscriberAdapter{subscriberApp: subscriberApp}
 }
 
-func (adapter SubscriberAdapter) GetCurrencyRate(from string, to string) (float32, error) {
+func (adapter SubscriberAdapter) GetAll() ([]string, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 
 	req.Header.SetMethod(fasthttp.MethodGet)
-	req.SetRequestURI(fmt.Sprintf("/", url.QueryEscape(from), url.QueryEscape(to)))
+	req.SetRequestURI("/")
 
 	ctx := &fasthttp.RequestCtx{}
 	req.CopyTo(&ctx.Request)
@@ -34,8 +32,12 @@ func (adapter SubscriberAdapter) GetCurrencyRate(from string, to string) (float3
 
 	response := string(ctx.Response.Body())
 
-	var res SubscriberResponse
+	var res []Subscriber
 	if err := json.Unmarshal([]byte(response), &res); err != nil {
 	}
-	return res.Rate, nil
+	emails := make([]string, len(res))
+	for i, subscriber := range res {
+		emails[i] = subscriber.Email
+	}
+	return emails, nil
 }

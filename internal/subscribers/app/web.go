@@ -9,8 +9,20 @@ import (
 func NewWebApp(container presentation.InteractorFactory) *fiber.App {
 	app := fiber.New()
 
-	handlers := handlers.NewSubscriberHandlers(container)
-	app.Post("/", handlers.HandleRequest)
+	subscribeHandler := handlers.NewSubscriberHandlers(container)
+	app.Post("/", subscribeHandler.HandleRequest)
+
+	return app
+}
+
+func NewInternalWebApp(container presentation.InteractorFactory) *fiber.App {
+	app := fiber.New()
+
+	subscribeHandler := handlers.NewSubscriberHandlers(container)
+	getAllHandler := handlers.NewGetAllHandler(container)
+
+	app.Post("/", subscribeHandler.HandleRequest)
+	app.Get("/", getAllHandler.HandleRequest)
 
 	return app
 }

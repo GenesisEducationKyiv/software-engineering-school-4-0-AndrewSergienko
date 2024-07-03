@@ -7,7 +7,7 @@ import (
 type InputDTO struct{}
 
 type OutputDTO struct {
-	subscribers []models.Subscriber
+	Subscribers []models.Subscriber
 }
 
 type SubscriberGateway interface {

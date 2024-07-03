@@ -1,12 +1,15 @@
 package services
 
 import (
-	"go_service/internal/infrastructure/database/models"
 	"log"
 )
 
+type Subscriber struct {
+	Email string
+}
+
 type SubscriberGateway interface {
-	GetAll() []models.Subscriber
+	GetAll() ([]string, error)
 }
 
 type EmailGateway interface {
@@ -45,13 +48,13 @@ func NewSendNotification(
 }
 
 func (s *SendNotification) Handle(data SendNotificationInputDTO) SendNotificationOutputDTO {
-	subscribers := s.subscriberGateway.GetAll()
+	subscribers, err := s.subscriberGateway.GetAll()
 	rate, err := s.currencyGateway.GetCurrencyRate(data.From, data.To)
 	if err != nil {
 		return SendNotificationOutputDTO{err}
 	}
 	for _, subscriber := range subscribers {
-		err = s.emailGateway.Send(subscriber.Email, rate)
+		err = s.emailGateway.Send(subscriber, rate)
 		if err != nil {
 			log.Printf("Failed to send email: %v\n", err)
 		}

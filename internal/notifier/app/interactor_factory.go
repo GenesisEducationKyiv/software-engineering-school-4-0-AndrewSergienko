@@ -1,4 +1,4 @@
-package notifier
+package app
 
 import (
 	"go_service/internal/notifier/services"
