@@ -3,11 +3,11 @@ package presentation
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	services2 "go_service/internal/currencyrate/services"
+	"go_service/internal/currencyrate/services"
 )
 
 type GetCurrencyRate interface {
-	Handle(data services2.GetCurrencyRateInputDTO) services2.GetCurrencyRateOutputDTO
+	Handle(data services.GetCurrencyRateInputDTO) services.GetCurrencyRateOutputDTO
 }
 
 type CurrencyHandlers struct {
@@ -23,10 +23,10 @@ func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
 	to := c.Query("to", "UAH")
 
 	interactor := ch.container.GetCurrencyRate()
-	result := interactor.Handle(services2.GetCurrencyRateInputDTO{From: from, To: to})
+	result := interactor.Handle(services.GetCurrencyRateInputDTO{From: from, To: to})
 
 	if result.Err != nil {
-		if errors.Is(result.Err, &services2.CurrencyNotExistsError{}) {
+		if errors.Is(result.Err, &services.CurrencyNotExistsError{}) {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Currency has no found",
 			})
