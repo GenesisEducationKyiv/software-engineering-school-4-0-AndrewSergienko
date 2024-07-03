@@ -3,24 +3,25 @@ package handlers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/presentation"
-	"go_service/internal/services"
+	"go_service/internal/subscribers/presentation"
+	"go_service/internal/subscribers/services"
+	"go_service/internal/subscribers/services/subscribe"
 	"net/mail"
 )
 
 type Subscribe interface {
-	Handle(data services.SubscribeInputDTO) services.SubscribeOutputDTO
+	Handle(data subscribe.InputDTO) subscribe.OutputDTO
 }
 
-type SubscribersHandlers struct {
+type SubscribeHandler struct {
 	container presentation.InteractorFactory
 }
 
-func NewSubscribersHandlers(container presentation.InteractorFactory) *SubscribersHandlers {
-	return &SubscribersHandlers{container}
+func NewSubscriberHandlers(container presentation.InteractorFactory) *SubscribeHandler {
+	return &SubscribeHandler{container}
 }
 
-func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
+func (sh *SubscribeHandler) HandleRequest(c *fiber.Ctx) error {
 	var requestData struct {
 		Email string `json:"email"`
 	}
@@ -38,7 +39,7 @@ func (sh *SubscribersHandlers) AddSubscriber(c *fiber.Ctx) error {
 	}
 
 	interactor := sh.container.Subscribe()
-	result := interactor.Handle(services.SubscribeInputDTO{Email: requestData.Email})
+	result := interactor.Handle(subscribe.InputDTO{Email: requestData.Email})
 
 	if result.Err != nil {
 		if errors.Is(result.Err, &services.EmailConflictError{}) {

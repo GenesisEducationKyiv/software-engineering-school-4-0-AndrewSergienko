@@ -1,10 +1,12 @@
 package main
 
 import (
-	"go_service/internal/adapters"
 	"go_service/internal/app"
+	"go_service/internal/currencyrate"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
+	"go_service/internal/notifier"
+	"go_service/internal/subscribers"
 	"log"
 )
 
@@ -16,16 +18,16 @@ func main() {
 
 	db := database.InitDatabase(databaseSettings)
 
-	container := app.NewIoC(db, emailSettings, currencyAPISettings)
-	schedulerAdapter := adapters.NewScheduleDBAdapter(db)
+	currencyApp := currencyrate.NewApp(currencyAPISettings)
+	subscriberApp := subscribers.NewInternalApp(db)
 
 	// background send mail task
-	rateMailer := app.InitRateMailer(container, schedulerAdapter)
+	notifierTask := notifier.NewTask(db, currencyApp, subscriberApp, emailSettings)
 
 	// web app
-	webApp := app.InitWebApp(container)
+	webApp := app.InitWebApp(db, currencyAPISettings)
 
 	// starting services
-	go rateMailer.Run()
+	go notifierTask.Run()
 	log.Fatalf("App failed with error: %v", webApp.Listen(":8080"))
 }

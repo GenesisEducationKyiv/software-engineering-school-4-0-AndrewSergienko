@@ -1,7 +1,7 @@
 package readers
 
 import (
-	"go_service/internal/services"
+	"go_service/internal/currencyrate/services"
 	"log"
 	"strings"
 )

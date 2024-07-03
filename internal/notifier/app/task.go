@@ -2,8 +2,7 @@ package app
 
 import (
 	"go_service/internal/infrastructure/database/models"
-	"go_service/internal/presentation"
-	"go_service/internal/services"
+	"go_service/internal/notifier/services"
 	"log"
 	"time"
 )
@@ -26,12 +25,12 @@ type CurrencyGateway interface {
 }
 
 type RateMailer struct {
-	container            presentation.InteractorFactory
+	container            InteractorFactory
 	schedulerTimeGateway SchedulerTimeGateway
 }
 
-func InitRateMailer(
-	container presentation.InteractorFactory,
+func NewRateMailer(
+	container InteractorFactory,
 	sg SchedulerTimeGateway,
 ) RateMailer {
 	return RateMailer{container: container, schedulerTimeGateway: sg}

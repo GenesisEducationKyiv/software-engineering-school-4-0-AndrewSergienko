@@ -1,7 +1,7 @@
-package currencyrate
+package adapters
 
 import (
-	"go_service/internal/adapters/currencyrate/readers"
+	"go_service/internal/currencyrate/adapters/readers"
 	"go_service/internal/infrastructure"
 )
 

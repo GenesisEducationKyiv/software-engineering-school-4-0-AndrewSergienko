@@ -2,17 +2,20 @@ package app
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/presentation/handlers"
+	"go_service/internal/currencyrate"
+	"go_service/internal/infrastructure"
+	"go_service/internal/subscribers"
+	"gorm.io/gorm"
 )
 
-func InitWebApp(container *IoC) *fiber.App {
+func InitWebApp(db *gorm.DB, apiSettings infrastructure.CurrencyAPISettings) *fiber.App {
 	app := fiber.New()
 
-	currencyHandlers := handlers.NewCurrencyHandlers(container)
-	subscribersHandles := handlers.NewSubscribersHandlers(container)
+	subscribersApp := subscribers.NewApp(db)
+	currencyRateApp := currencyrate.NewApp(apiSettings)
 
-	app.Get("/", currencyHandlers.GetCurrency)
-	app.Post("/subscribers", subscribersHandles.AddSubscriber)
+	app.Mount("/subscribers/", subscribersApp)
+	app.Mount("/rates/", currencyRateApp)
 
 	return app
 }

@@ -1,19 +1,22 @@
 package services
 
 import (
-	"go_service/internal/infrastructure/database/models"
 	"log"
 )
 
-type SendNotificationSubscriberGateway interface {
-	GetAll() []models.Subscriber
+type Subscriber struct {
+	Email string
 }
 
-type SendNotificationEmailGateway interface {
+type SubscriberGateway interface {
+	GetAll() ([]string, error)
+}
+
+type EmailGateway interface {
 	Send(target string, rate float32) error
 }
 
-type SendNotificationCurrencyGateway interface {
+type CurrencyRateGateway interface {
 	GetCurrencyRate(from string, to string) (float32, error)
 }
 
@@ -27,15 +30,15 @@ type SendNotificationOutputDTO struct {
 }
 
 type SendNotification struct {
-	emailGateway      SendNotificationEmailGateway
-	subscriberGateway SendNotificationSubscriberGateway
-	currencyGateway   SendNotificationCurrencyGateway
+	emailGateway      EmailGateway
+	subscriberGateway SubscriberGateway
+	currencyGateway   CurrencyRateGateway
 }
 
 func NewSendNotification(
-	emailGateway SendNotificationEmailGateway,
-	subscriberGateway SendNotificationSubscriberGateway,
-	currencyGateway SendNotificationCurrencyGateway,
+	emailGateway EmailGateway,
+	subscriberGateway SubscriberGateway,
+	currencyGateway CurrencyRateGateway,
 ) *SendNotification {
 	return &SendNotification{
 		emailGateway:      emailGateway,
@@ -45,13 +48,19 @@ func NewSendNotification(
 }
 
 func (s *SendNotification) Handle(data SendNotificationInputDTO) SendNotificationOutputDTO {
-	subscribers := s.subscriberGateway.GetAll()
-	rate, err := s.currencyGateway.GetCurrencyRate(data.From, data.To)
+	var rate float32
+
+	subscribers, err := s.subscriberGateway.GetAll()
+	if err != nil {
+		return SendNotificationOutputDTO{err}
+	}
+
+	rate, err = s.currencyGateway.GetCurrencyRate(data.From, data.To)
 	if err != nil {
 		return SendNotificationOutputDTO{err}
 	}
 	for _, subscriber := range subscribers {
-		err = s.emailGateway.Send(subscriber.Email, rate)
+		err = s.emailGateway.Send(subscriber, rate)
 		if err != nil {
 			log.Printf("Failed to send email: %v\n", err)
 		}
