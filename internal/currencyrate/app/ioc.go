@@ -1,9 +1,9 @@
 package app
 
 import (
-	"go_service/internal/currency_rate/adapters"
-	"go_service/internal/currency_rate/presentation"
-	"go_service/internal/currency_rate/services"
+	"go_service/internal/currencyrate/adapters"
+	"go_service/internal/currencyrate/presentation"
+	"go_service/internal/currencyrate/services"
 	"go_service/internal/infrastructure"
 )
 

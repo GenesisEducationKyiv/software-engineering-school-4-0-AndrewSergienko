@@ -36,6 +36,7 @@ func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (floa
 
 	var res Response
 	if err := json.Unmarshal([]byte(response), &res); err != nil {
+		return 0, err
 	}
 	return res.Rate, nil
 }

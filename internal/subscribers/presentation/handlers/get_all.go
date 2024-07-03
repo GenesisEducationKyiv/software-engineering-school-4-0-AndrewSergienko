@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"go_service/internal/subscribers/presentation"
-	"go_service/internal/subscribers/services/get_all"
+	"go_service/internal/subscribers/services/getall"
 )
 
 type GetAll interface {
-	Handle(data get_all.InputDTO) get_all.OutputDTO
+	Handle(data getall.InputDTO) getall.OutputDTO
 }
 
-type GetAllHandler struct {
+type GetAllHandler struct { // nolint: exported
 	container presentation.InteractorFactory
 }
 
@@ -21,7 +21,7 @@ func NewGetAllHandler(container presentation.InteractorFactory) *GetAllHandler {
 
 func (h *GetAllHandler) HandleRequest(c *fiber.Ctx) error {
 	interactor := h.container.GetAll()
-	result := interactor.Handle(get_all.InputDTO{})
+	result := interactor.Handle(getall.InputDTO{})
 
 	data, err := json.Marshal(result.Subscribers)
 	if err != nil {

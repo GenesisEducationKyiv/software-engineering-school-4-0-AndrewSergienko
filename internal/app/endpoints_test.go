@@ -29,11 +29,9 @@ func (suite *SubscribersPresentationSuite) SetupSuite() {
 func (suite *SubscribersPresentationSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
-	emailSettings := infrastructure.EmailSettings{}
 
-	container := NewIoC(suite.transaction, emailSettings, currencyAPISettings)
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
-	suite.webApp = InitWebApp(container)
+	suite.webApp = InitWebApp(suite.transaction, currencyAPISettings)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {
@@ -55,7 +53,7 @@ func (suite *SubscribersPresentationSuite) TestAddSubscriber() {
 }
 
 func (suite *SubscribersPresentationSuite) TestGetCurrency() {
-	req := httptest.NewRequest("GET", "/?from=USD", nil)
+	req := httptest.NewRequest("GET", "/rates/?from=USD", nil)
 
 	resp, err := suite.webApp.Test(req)
 

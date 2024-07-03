@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	readers2 "go_service/internal/currency_rate/adapters/readers"
+	readers2 "go_service/internal/currencyrate/adapters/readers"
 	"go_service/internal/infrastructure"
 )
 

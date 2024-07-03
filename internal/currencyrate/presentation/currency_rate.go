@@ -3,7 +3,7 @@ package presentation
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	services2 "go_service/internal/currency_rate/services"
+	services2 "go_service/internal/currencyrate/services"
 )
 
 type GetCurrencyRate interface {

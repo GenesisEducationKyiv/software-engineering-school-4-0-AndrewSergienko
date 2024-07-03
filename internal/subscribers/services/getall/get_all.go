@@ -1,4 +1,4 @@
-package get_all
+package getall
 
 import (
 	"go_service/internal/infrastructure/database/models"
@@ -14,14 +14,14 @@ type SubscriberGateway interface {
 	GetAll() []models.Subscriber
 }
 
-type GetAllHandler struct {
+type GetAll struct {
 	gateway SubscriberGateway
 }
 
-func NewGetAllHandler(gateway SubscriberGateway) *GetAllHandler {
-	return &GetAllHandler{gateway: gateway}
+func NewGetAllHandler(gateway SubscriberGateway) *GetAll {
+	return &GetAll{gateway: gateway}
 }
 
-func (s *GetAllHandler) Handle(data InputDTO) OutputDTO {
+func (s *GetAll) Handle(data InputDTO) OutputDTO { //nolint:all
 	return OutputDTO{s.gateway.GetAll()}
 }

@@ -1,8 +1,8 @@
-package currency_rate
+package currencyrate
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/currency_rate/app"
+	"go_service/internal/currencyrate/app"
 	"go_service/internal/infrastructure"
 )
 

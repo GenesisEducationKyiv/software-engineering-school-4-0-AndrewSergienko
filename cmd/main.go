@@ -2,7 +2,7 @@ package main
 
 import (
 	"go_service/internal/app"
-	"go_service/internal/currency_rate"
+	"go_service/internal/currencyrate"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
 	"go_service/internal/notifier"
@@ -18,7 +18,7 @@ func main() {
 
 	db := database.InitDatabase(databaseSettings)
 
-	currencyApp := currency_rate.NewApp(currencyAPISettings)
+	currencyApp := currencyrate.NewApp(currencyAPISettings)
 	subscriberApp := subscribers.NewInternalApp(db)
 
 	// background send mail task

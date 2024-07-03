@@ -48,8 +48,14 @@ func NewSendNotification(
 }
 
 func (s *SendNotification) Handle(data SendNotificationInputDTO) SendNotificationOutputDTO {
+	var rate float32
+
 	subscribers, err := s.subscriberGateway.GetAll()
-	rate, err := s.currencyGateway.GetCurrencyRate(data.From, data.To)
+	if err != nil {
+		return SendNotificationOutputDTO{err}
+	}
+
+	rate, err = s.currencyGateway.GetCurrencyRate(data.From, data.To)
 	if err != nil {
 		return SendNotificationOutputDTO{err}
 	}

@@ -34,6 +34,7 @@ func (adapter SubscriberAdapter) GetAll() ([]string, error) {
 
 	var res []Subscriber
 	if err := json.Unmarshal([]byte(response), &res); err != nil {
+		return nil, err
 	}
 	emails := make([]string, len(res))
 	for i, subscriber := range res {

@@ -1,7 +1,7 @@
 package presentation
 
 import (
-	"go_service/internal/currency_rate/services"
+	"go_service/internal/currencyrate/services"
 )
 
 type Interactor[InputDTO, OutputDTO any] interface {

@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/currency_rate/presentation"
+	"go_service/internal/currencyrate/presentation"
 )
 
 func NewWebApp(container presentation.InteractorFactory) *fiber.App {
