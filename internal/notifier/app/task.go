@@ -2,6 +2,7 @@ package app
 
 import (
 	"go_service/internal/infrastructure/database/models"
+	"go_service/internal/notifier/services"
 	"log"
 	"time"
 )
@@ -20,23 +21,19 @@ type EmailGateway interface {
 }
 
 type CurrencyGateway interface {
-	GetUSDCurrencyRate() (float32, error)
+	GetCurrencyRate(from string, to string) (float32, error)
 }
 
 type RateMailer struct {
-	emailGateway         EmailGateway
-	subscriberGateway    SubscriberGateway
+	container            InteractorFactory
 	schedulerTimeGateway SchedulerTimeGateway
-	currencyGateway      CurrencyGateway
 }
 
-func InitRateMailer(
-	es EmailGateway,
-	sr SubscriberGateway,
+func NewRateMailer(
+	container InteractorFactory,
 	sg SchedulerTimeGateway,
-	cr CurrencyGateway,
 ) RateMailer {
-	return RateMailer{es, sr, sg, cr}
+	return RateMailer{container: container, schedulerTimeGateway: sg}
 }
 
 func (ms RateMailer) Run() {
@@ -67,18 +64,8 @@ func (ms RateMailer) RunSending() {
 }
 
 func (ms RateMailer) SendRateToAll() error {
-	subscribers := ms.subscriberGateway.GetAll()
-	rate, err := ms.currencyGateway.GetUSDCurrencyRate()
-	if err != nil {
-		return err
-	}
-	for _, subscriber := range subscribers {
-		err = ms.emailGateway.Send(subscriber.Email, rate)
-		if err != nil {
-			log.Printf("Failed to send email: %v\n", err)
-		}
-	}
-	return nil
+	interactor := ms.container.SendNotification()
+	return interactor.Handle(services.SendNotificationInputDTO{From: "USD", To: "UAH"}).Err
 }
 
 func (RateMailer) GetNextTime(lt *time.Time) time.Time {
