@@ -1,7 +1,6 @@
 package app
 
 import (
-	"go_service/internal/infrastructure/database/models"
 	"go_service/internal/notifier/services"
 	"log"
 	"time"
@@ -10,10 +9,6 @@ import (
 type SchedulerTimeGateway interface {
 	GetLastTime() *time.Time
 	SetLastTime() error
-}
-
-type SubscriberGateway interface {
-	GetAll() []models.Subscriber
 }
 
 type EmailGateway interface {

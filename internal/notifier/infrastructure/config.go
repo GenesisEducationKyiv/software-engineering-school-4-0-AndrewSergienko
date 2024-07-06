@@ -3,8 +3,21 @@ package infrastructure
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"go_service/internal/infrastructure"
+	"log"
+	"os"
 )
+
+func FetchEnv(name string, strict bool) string {
+	value := os.Getenv(name)
+	if value == "" {
+		if strict {
+			log.Fatalf("Environment variable %s is not set", name)
+		}
+		log.Printf("WARN: Environment variable %s is not set\n", name)
+	}
+
+	return value
+}
 
 type EmailSettings struct {
 	Email    string
@@ -39,8 +52,8 @@ func GetServicesAPISettings(configFilePath string) (*ServicesAPISettings, error)
 
 func GetEmailSettings() EmailSettings {
 	return EmailSettings{
-		Email:    infrastructure.FetchEnv("EMAIL", true),
-		Password: infrastructure.FetchEnv("EMAIL_PASSWORD", true),
-		Host:     infrastructure.FetchEnv("EMAIL_HOST", true),
+		Email:    FetchEnv("EMAIL", true),
+		Password: FetchEnv("EMAIL_PASSWORD", true),
+		Host:     FetchEnv("EMAIL_HOST", true),
 	}
 }

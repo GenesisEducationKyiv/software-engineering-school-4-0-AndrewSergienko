@@ -1,0 +1,12 @@
+check:
+  allow:
+    'internal/subscribers/**':
+      - 'internal/subscribers/**'
+    'internal/currencyrate/**':
+      - 'internal/currencyrate/**'
+    'internal/notifier/**':
+      - 'internal/notifier/**'
+    'internal/infrastructure/**':
+      - 'internal/infrastructure/**'
+    'internal/app/**':
+      - 'internal/app/**'

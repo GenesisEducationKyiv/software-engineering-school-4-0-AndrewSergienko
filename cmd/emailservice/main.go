@@ -1,4 +1,4 @@
-package emailservice
+package main
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-func main() { //nolint: all
+func main() {
 	databaseSettings := globalInfrastructure.GetDatabaseSettings()
 	emailSettings := infrastructure.GetEmailSettings()
 
