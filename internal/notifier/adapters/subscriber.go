@@ -21,6 +21,10 @@ func (adapter SubscriberAdapter) GetAll() ([]string, error) {
 	url := adapter.subscriberServiceSettings.Host + adapter.subscriberServiceSettings.GetSubscribersURL
 	body, err := ReadHTTP(url)
 
+	if err != nil {
+		return nil, err
+	}
+
 	var response []Subscriber
 	err = json.Unmarshal(body, &response)
 	if err != nil {

@@ -14,7 +14,9 @@ type CurrencyRateAdapter struct {
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings
 }
 
-func NewCurrencyRateAdapter(currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings) CurrencyRateAdapter {
+func NewCurrencyRateAdapter(
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
+) CurrencyRateAdapter {
 	return CurrencyRateAdapter{currencyServiceSettings}
 }
 
@@ -27,6 +29,10 @@ func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (floa
 		to,
 	)
 	body, err := ReadHTTP(url)
+
+	if err != nil {
+		return 0, err
+	}
 
 	var response CurrencyRateResponse
 	err = json.Unmarshal(body, &response)
