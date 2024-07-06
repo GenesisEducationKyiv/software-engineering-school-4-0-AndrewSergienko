@@ -1,20 +1,33 @@
 package main
 
 import (
+	"fmt"
 	globalInfrastructure "go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
 	"go_service/internal/notifier"
 	"go_service/internal/notifier/infrastructure"
+	"os"
+	"path/filepath"
 )
 
-func runEmailService() {
+func main() {
 	databaseSettings := globalInfrastructure.GetDatabaseSettings()
 	emailSettings := infrastructure.GetEmailSettings()
 
-	currencyAPISettings := infrastructure.GetCurrencyServiceAPISettings()
-	subscriberAPISettings := infrastructure.GetSubscriberServiceAPISettings()
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	configPath := filepath.Join(cwd, "conf", "config.toml")
+	servicesAPISettings, err := infrastructure.GetServicesAPISettings(configPath)
+	if err != nil {
+		panic(err)
+	}
 
 	db := database.InitDatabase(databaseSettings)
-	task := notifier.NewTask(db, currencyAPISettings, subscriberAPISettings, emailSettings)
-	go task.Run()
+	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, servicesAPISettings.Subscriber, emailSettings)
+
+	task.Run()
 }

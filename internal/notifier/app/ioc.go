@@ -13,8 +13,8 @@ type IoC struct {
 }
 
 func NewIoC(
-	currencyServiceSettings infrastructure.CurrencyServiceAPISettings,
-	subscriberServiceSettings infrastructure.SubscriberServiceAPISettings,
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
+	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
 ) *IoC {
 	return &IoC{

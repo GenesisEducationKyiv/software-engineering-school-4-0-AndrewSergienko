@@ -10,8 +10,3 @@ func NewApp(db *gorm.DB) *fiber.App {
 	container := app.NewIoC(db)
 	return app.NewWebApp(container)
 }
-
-func NewInternalApp(db *gorm.DB) *fiber.App {
-	container := app.NewIoC(db)
-	return app.NewInternalWebApp(container)
-}

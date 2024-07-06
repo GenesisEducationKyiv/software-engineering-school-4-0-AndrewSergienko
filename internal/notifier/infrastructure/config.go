@@ -1,6 +1,10 @@
 package infrastructure
 
-import "go_service/internal/infrastructure"
+import (
+	"fmt"
+	"github.com/BurntSushi/toml"
+	"go_service/internal/infrastructure"
+)
 
 type EmailSettings struct {
 	Email    string
@@ -8,7 +12,7 @@ type EmailSettings struct {
 	Host     string
 }
 
-type CurrencyServiceAPISettings struct {
+type CurrencyRateServiceAPISettings struct {
 	Host           string
 	GetCurrencyURL string
 }
@@ -18,18 +22,19 @@ type SubscriberServiceAPISettings struct {
 	GetSubscribersURL string
 }
 
-func GetCurrencyServiceAPISettings() CurrencyServiceAPISettings {
-	return CurrencyServiceAPISettings{
-		Host:           "http://localhost:8080",
-		GetCurrencyURL: "/rates/",
-	}
+type ServicesAPISettings struct {
+	CurrencyRate *CurrencyRateServiceAPISettings
+	Subscriber   *SubscriberServiceAPISettings
 }
 
-func GetSubscriberServiceAPISettings() SubscriberServiceAPISettings {
-	return SubscriberServiceAPISettings{
-		Host:              "http://localhost:8080",
-		GetSubscribersURL: "/subscribers/",
+func GetServicesAPISettings(configFilePath string) (*ServicesAPISettings, error) {
+	var config ServicesAPISettings
+
+	if _, err := toml.DecodeFile(configFilePath, &config); err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
 	}
+	return &config, nil
 }
 
 func GetEmailSettings() EmailSettings {

@@ -9,8 +9,8 @@ import (
 
 func NewTask(
 	db *gorm.DB,
-	currencyServiceSettings infrastructure.CurrencyServiceAPISettings,
-	subscriberServiceSettings infrastructure.SubscriberServiceAPISettings,
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
+	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
 ) app.RateMailer {
 	schedulerGateway := adapters.NewScheduleDBAdapter(db)

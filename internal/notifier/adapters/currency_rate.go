@@ -11,10 +11,10 @@ type CurrencyRateResponse struct {
 }
 
 type CurrencyRateAdapter struct {
-	currencyServiceSettings infrastructure.CurrencyServiceAPISettings
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings
 }
 
-func NewCurrencyRateAdapter(currencyServiceSettings infrastructure.CurrencyServiceAPISettings) CurrencyRateAdapter {
+func NewCurrencyRateAdapter(currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings) CurrencyRateAdapter {
 	return CurrencyRateAdapter{currencyServiceSettings}
 }
 

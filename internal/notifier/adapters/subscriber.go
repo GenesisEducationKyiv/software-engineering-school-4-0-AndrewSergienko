@@ -10,10 +10,10 @@ type Subscriber struct {
 }
 
 type SubscriberAdapter struct {
-	subscriberServiceSettings infrastructure.SubscriberServiceAPISettings
+	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings
 }
 
-func NewSubscriberAdapter(subscriberServiceSettings infrastructure.SubscriberServiceAPISettings) SubscriberAdapter {
+func NewSubscriberAdapter(subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings) SubscriberAdapter {
 	return SubscriberAdapter{subscriberServiceSettings: subscriberServiceSettings}
 }
 
