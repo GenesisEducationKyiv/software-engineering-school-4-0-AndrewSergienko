@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"go_service/internal/currencyrate"
-	"go_service/internal/infrastructure"
+	"go_service/internal/currencyrate/infrastructure"
 	"go_service/internal/subscribers"
 	"gorm.io/gorm"
 )

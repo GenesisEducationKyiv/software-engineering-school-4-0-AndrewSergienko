@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"go_service/internal/infrastructure/database/models"
+	"go_service/internal/notifier/infrastructure/database/models"
 	"gorm.io/gorm"
 	"time"
 )

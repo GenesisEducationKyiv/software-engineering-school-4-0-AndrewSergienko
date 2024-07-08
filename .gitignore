@@ -1,2 +1,3 @@
 .idea
-conf/.env
+conf/.env.main
+/conf/.env.notifier

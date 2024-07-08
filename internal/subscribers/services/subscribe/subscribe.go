@@ -1,7 +1,7 @@
 package subscribe
 
 import (
-	"go_service/internal/infrastructure/database/models"
+	"go_service/internal/subscribers/infrastructure/database/models"
 	"go_service/internal/subscribers/services"
 )
 

@@ -2,9 +2,9 @@ package app
 
 import (
 	"go_service/internal/currencyrate/adapters"
+	"go_service/internal/currencyrate/infrastructure"
 	"go_service/internal/currencyrate/presentation"
 	"go_service/internal/currencyrate/services"
-	"go_service/internal/infrastructure"
 )
 
 type IoC struct {

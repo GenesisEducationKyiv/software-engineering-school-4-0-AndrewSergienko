@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func FetchEnv(name string, strict bool) string {
+func fetchEnv(name string, strict bool) string {
 	value := os.Getenv(name)
 	if value == "" {
 		if strict {
@@ -40,6 +40,24 @@ type ServicesAPISettings struct {
 	Subscriber   *SubscriberServiceAPISettings
 }
 
+type DatabaseSettings struct {
+	User     string
+	Password string
+	Host     string
+	Port     string
+	Database string
+}
+
+func GetDatabaseSettings() DatabaseSettings {
+	return DatabaseSettings{
+		User:     fetchEnv("POSTGRES_USER", true),
+		Password: fetchEnv("POSTGRES_PASSWORD", true),
+		Database: fetchEnv("POSTGRES_DB", true),
+		Host:     fetchEnv("DB_HOST", true),
+		Port:     fetchEnv("DB_PORT", true),
+	}
+}
+
 func GetServicesAPISettings(configFilePath string) (*ServicesAPISettings, error) {
 	var config ServicesAPISettings
 
@@ -52,8 +70,8 @@ func GetServicesAPISettings(configFilePath string) (*ServicesAPISettings, error)
 
 func GetEmailSettings() EmailSettings {
 	return EmailSettings{
-		Email:    FetchEnv("EMAIL", true),
-		Password: FetchEnv("EMAIL_PASSWORD", true),
-		Host:     FetchEnv("EMAIL_HOST", true),
+		Email:    fetchEnv("EMAIL", true),
+		Password: fetchEnv("EMAIL_PASSWORD", true),
+		Host:     fetchEnv("EMAIL_HOST", true),
 	}
 }

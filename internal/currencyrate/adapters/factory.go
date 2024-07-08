@@ -2,7 +2,7 @@ package adapters
 
 import (
 	"go_service/internal/currencyrate/adapters/readers"
-	"go_service/internal/infrastructure"
+	"go_service/internal/currencyrate/infrastructure"
 )
 
 type APICurrencyReader interface {

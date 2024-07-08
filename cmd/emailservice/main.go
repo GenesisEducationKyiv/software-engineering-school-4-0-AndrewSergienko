@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	globalInfrastructure "go_service/internal/infrastructure"
-	"go_service/internal/infrastructure/database"
 	"go_service/internal/notifier"
 	"go_service/internal/notifier/infrastructure"
+	"go_service/internal/notifier/infrastructure/database"
 	"os"
 	"path/filepath"
 )
 
 func main() {
-	databaseSettings := globalInfrastructure.GetDatabaseSettings()
+	databaseSettings := infrastructure.GetDatabaseSettings()
 	emailSettings := infrastructure.GetEmailSettings()
 
 	cwd, err := os.Getwd()
@@ -27,6 +26,7 @@ func main() {
 	}
 
 	db := database.InitDatabase(databaseSettings)
+
 	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, servicesAPISettings.Subscriber, emailSettings)
 
 	task.Run()
