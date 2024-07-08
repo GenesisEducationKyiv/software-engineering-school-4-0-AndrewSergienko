@@ -30,14 +30,8 @@ type CurrencyRateServiceAPISettings struct {
 	GetCurrencyURL string
 }
 
-type SubscriberServiceAPISettings struct {
-	Host              string
-	GetSubscribersURL string
-}
-
 type ServicesAPISettings struct {
 	CurrencyRate *CurrencyRateServiceAPISettings
-	Subscriber   *SubscriberServiceAPISettings
 }
 
 type DatabaseSettings struct {

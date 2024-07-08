@@ -27,7 +27,7 @@ func main() {
 
 	db := database.InitDatabase(databaseSettings)
 
-	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, servicesAPISettings.Subscriber, emailSettings)
+	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings)
 
 	task.Run()
 }

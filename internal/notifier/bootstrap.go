@@ -10,11 +10,10 @@ import (
 func NewTask(
 	db *gorm.DB,
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
-	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
 ) app.RateMailer {
 	schedulerGateway := adapters.NewScheduleDBAdapter(db)
-	container := app.NewIoC(currencyServiceSettings, subscriberServiceSettings, emailSettings)
+	container := app.NewIoC(db, currencyServiceSettings, emailSettings)
 
 	return app.NewRateMailer(container, schedulerGateway)
 }
