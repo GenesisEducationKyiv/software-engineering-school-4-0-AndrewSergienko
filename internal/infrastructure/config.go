@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func fetchEnv(name string, strict bool) string {
+func FetchEnv(name string, strict bool) string {
 	value := os.Getenv(name)
 	if value == "" {
 		if strict {
@@ -31,34 +31,20 @@ type CurrencyAPISettings struct {
 	ExchangerateAPIURL string
 }
 
-type EmailSettings struct {
-	Email    string
-	Password string
-	Host     string
-}
-
 func GetDatabaseSettings() DatabaseSettings {
 	return DatabaseSettings{
-		User:     fetchEnv("POSTGRES_USER", true),
-		Password: fetchEnv("POSTGRES_PASSWORD", true),
-		Database: fetchEnv("POSTGRES_DB", true),
-		Host:     fetchEnv("DB_HOST", true),
-		Port:     fetchEnv("DB_PORT", true),
+		User:     FetchEnv("POSTGRES_USER", true),
+		Password: FetchEnv("POSTGRES_PASSWORD", true),
+		Database: FetchEnv("POSTGRES_DB", true),
+		Host:     FetchEnv("DB_HOST", true),
+		Port:     FetchEnv("DB_PORT", true),
 	}
 }
 
 func GetCurrencyAPISettings() CurrencyAPISettings {
 	return CurrencyAPISettings{
-		CurrencyAPIURL:     fetchEnv("CURRENCY_API_URL", false),
-		FawazaAPIURL:       fetchEnv("FAWAZA_API_URL", false),
-		ExchangerateAPIURL: fetchEnv("EXCHANGERATE_API_URL", false),
-	}
-}
-
-func GetEmailSettings() EmailSettings {
-	return EmailSettings{
-		Email:    fetchEnv("EMAIL", true),
-		Password: fetchEnv("EMAIL_PASSWORD", true),
-		Host:     fetchEnv("EMAIL_HOST", true),
+		CurrencyAPIURL:     FetchEnv("CURRENCY_API_URL", false),
+		FawazaAPIURL:       FetchEnv("FAWAZA_API_URL", false),
+		ExchangerateAPIURL: FetchEnv("EXCHANGERATE_API_URL", false),
 	}
 }

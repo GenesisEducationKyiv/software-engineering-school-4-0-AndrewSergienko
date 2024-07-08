@@ -3,40 +3,41 @@ package adapters
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/valyala/fasthttp"
-	"net/url"
+	"go_service/internal/notifier/infrastructure"
 )
 
-type Response struct {
+type CurrencyRateResponse struct {
 	Rate float32 `json:"rate"`
 }
 
 type CurrencyRateAdapter struct {
-	currencyApp *fiber.App
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings
 }
 
-func NewCurrencyRateAdapter(currencyApp *fiber.App) CurrencyRateAdapter {
-	return CurrencyRateAdapter{currencyApp: currencyApp}
+func NewCurrencyRateAdapter(
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
+) CurrencyRateAdapter {
+	return CurrencyRateAdapter{currencyServiceSettings}
 }
 
 func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (float32, error) {
-	req := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(req)
+	url := fmt.Sprintf(
+		"%s%s?from=%s&to=%s",
+		adapter.currencyServiceSettings.Host,
+		adapter.currencyServiceSettings.GetCurrencyURL,
+		from,
+		to,
+	)
+	body, err := ReadHTTP(url)
 
-	req.Header.SetMethod(fasthttp.MethodGet)
-	req.SetRequestURI(fmt.Sprintf("/?from=%s&to=%s", url.QueryEscape(from), url.QueryEscape(to)))
-
-	ctx := &fasthttp.RequestCtx{}
-	req.CopyTo(&ctx.Request)
-
-	adapter.currencyApp.Handler()(ctx)
-
-	response := string(ctx.Response.Body())
-
-	var res Response
-	if err := json.Unmarshal([]byte(response), &res); err != nil {
+	if err != nil {
 		return 0, err
 	}
-	return res.Rate, nil
+
+	var response CurrencyRateResponse
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return 0, err
+	}
+	return response.Rate, nil
 }

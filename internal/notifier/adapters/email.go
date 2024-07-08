@@ -2,7 +2,7 @@ package adapters
 
 import (
 	"fmt"
-	"go_service/internal/infrastructure"
+	"go_service/internal/notifier/infrastructure"
 	"net/smtp"
 )
 

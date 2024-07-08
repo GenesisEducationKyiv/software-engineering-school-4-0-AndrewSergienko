@@ -2,8 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
-	"github.com/valyala/fasthttp"
+	"go_service/internal/notifier/infrastructure"
 )
 
 type Subscriber struct {
@@ -11,33 +10,28 @@ type Subscriber struct {
 }
 
 type SubscriberAdapter struct {
-	subscriberApp *fiber.App
+	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings
 }
 
-func NewSubscriberAdapter(subscriberApp *fiber.App) SubscriberAdapter {
-	return SubscriberAdapter{subscriberApp: subscriberApp}
+func NewSubscriberAdapter(subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings) SubscriberAdapter {
+	return SubscriberAdapter{subscriberServiceSettings: subscriberServiceSettings}
 }
 
 func (adapter SubscriberAdapter) GetAll() ([]string, error) {
-	req := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(req)
+	url := adapter.subscriberServiceSettings.Host + adapter.subscriberServiceSettings.GetSubscribersURL
+	body, err := ReadHTTP(url)
 
-	req.Header.SetMethod(fasthttp.MethodGet)
-	req.SetRequestURI("/")
-
-	ctx := &fasthttp.RequestCtx{}
-	req.CopyTo(&ctx.Request)
-
-	adapter.subscriberApp.Handler()(ctx)
-
-	response := string(ctx.Response.Body())
-
-	var res []Subscriber
-	if err := json.Unmarshal([]byte(response), &res); err != nil {
+	if err != nil {
 		return nil, err
 	}
-	emails := make([]string, len(res))
-	for i, subscriber := range res {
+
+	var response []Subscriber
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+	emails := make([]string, len(response))
+	for i, subscriber := range response {
 		emails[i] = subscriber.Email
 	}
 	return emails, nil

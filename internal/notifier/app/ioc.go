@@ -1,9 +1,8 @@
 package app
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"go_service/internal/infrastructure"
 	"go_service/internal/notifier/adapters"
+	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/services"
 )
 
@@ -13,10 +12,14 @@ type IoC struct {
 	subscriberAdapter   adapters.SubscriberAdapter
 }
 
-func NewIoC(currencyApp *fiber.App, subscriberApp *fiber.App, emailSettings infrastructure.EmailSettings) *IoC {
+func NewIoC(
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
+	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings,
+	emailSettings infrastructure.EmailSettings,
+) *IoC {
 	return &IoC{
-		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyApp),
-		subscriberAdapter:   adapters.NewSubscriberAdapter(subscriberApp),
+		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyServiceSettings),
+		subscriberAdapter:   adapters.NewSubscriberAdapter(subscriberServiceSettings),
 		emailAdapter:        adapters.NewEmailAdapter(emailSettings),
 	}
 }

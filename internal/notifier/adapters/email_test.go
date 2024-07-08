@@ -3,7 +3,7 @@ package adapters
 import (
 	"errors"
 	"github.com/stretchr/testify/suite"
-	"go_service/internal/infrastructure"
+	"go_service/internal/notifier/infrastructure"
 	"net"
 	"testing"
 )
