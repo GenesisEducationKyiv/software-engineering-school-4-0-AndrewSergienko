@@ -1,7 +1,7 @@
 package getall
 
 import (
-	"go_service/internal/subscribers/infrastructure/database/models"
+	"go_service/internal/customers/infrastructure/database/models"
 )
 
 type InputDTO struct{}

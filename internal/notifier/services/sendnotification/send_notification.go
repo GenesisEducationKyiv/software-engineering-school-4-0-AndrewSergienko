@@ -1,4 +1,4 @@
-package services
+package sendnotification
 
 import (
 	"go_service/internal/notifier/infrastructure/database/models"
@@ -17,13 +17,14 @@ type CurrencyRateGateway interface {
 	GetCurrencyRate(from string, to string) (float32, error)
 }
 
-type SendNotificationInputDTO struct {
+type InputData struct {
 	From string
 	To   string
 }
 
-type SendNotificationOutputDTO struct {
-	Err error
+type OutputData struct {
+	Err       error
+	ErrEmails []string
 }
 
 type SendNotification struct {
@@ -44,20 +45,26 @@ func NewSendNotification(
 	}
 }
 
-func (s *SendNotification) Handle(data SendNotificationInputDTO) SendNotificationOutputDTO {
+func (s *SendNotification) Handle(data InputData) OutputData {
 	var rate float32
 
 	subscribers := s.subscriberGateway.GetAll()
+	if subscribers == nil {
+		return OutputData{nil, make([]string, 0)}
+	}
 
 	rate, err := s.currencyGateway.GetCurrencyRate(data.From, data.To)
 	if err != nil {
-		return SendNotificationOutputDTO{err}
+		return OutputData{err, make([]string, 0)}
 	}
+
+	errEmails := make([]string, 0)
 	for _, subscriber := range subscribers {
 		err = s.emailGateway.Send(subscriber.Email, rate)
 		if err != nil {
+			errEmails = append(errEmails, subscriber.Email)
 			log.Printf("Failed to send email: %v\n", err)
 		}
 	}
-	return SendNotificationOutputDTO{nil}
+	return OutputData{nil, errEmails}
 }

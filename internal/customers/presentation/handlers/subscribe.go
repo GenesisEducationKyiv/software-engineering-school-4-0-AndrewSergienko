@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/subscribers/presentation"
-	"go_service/internal/subscribers/services"
-	"go_service/internal/subscribers/services/subscribe"
+	"go_service/internal/customers/presentation"
+	"go_service/internal/customers/services"
+	"go_service/internal/customers/services/subscribe"
 	"net/mail"
 )
 

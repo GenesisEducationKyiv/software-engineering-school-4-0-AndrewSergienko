@@ -5,5 +5,5 @@ type Subscriber struct {
 }
 
 func (Subscriber) TableName() string {
-	return "subscribers"
+	return "customers"
 }

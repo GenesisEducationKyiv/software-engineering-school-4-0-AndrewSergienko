@@ -5,9 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/suite"
 	currencyInfrastructure "go_service/internal/currencyrate/infrastructure"
+	"go_service/internal/customers/adapters"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
-	"go_service/internal/subscribers/adapters"
 	"gorm.io/gorm"
 	"net/http/httptest"
 	"testing"
@@ -42,7 +42,7 @@ func (suite *SubscribersPresentationSuite) TearDownTest() {
 func (suite *SubscribersPresentationSuite) TestAddSubscriber() {
 	var jsonStr = []byte(`{"email":"test@gmail.com"}`)
 
-	req := httptest.NewRequest("POST", "/subscribers/", bytes.NewBuffer(jsonStr))
+	req := httptest.NewRequest("POST", "/customers/", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := suite.webApp.Test(req)

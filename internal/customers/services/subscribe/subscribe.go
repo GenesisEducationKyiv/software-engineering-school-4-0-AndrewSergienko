@@ -1,8 +1,8 @@
 package subscribe
 
 import (
-	"go_service/internal/subscribers/infrastructure/database/models"
-	"go_service/internal/subscribers/services"
+	"go_service/internal/customers/infrastructure/database/models"
+	"go_service/internal/customers/services"
 )
 
 type InputDTO struct {

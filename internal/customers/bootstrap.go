@@ -1,8 +1,8 @@
-package subscribers
+package customers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/subscribers/app"
+	"go_service/internal/customers/app"
 	"gorm.io/gorm"
 )
 

@@ -4,17 +4,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go_service/internal/currencyrate"
 	"go_service/internal/currencyrate/infrastructure"
-	"go_service/internal/subscribers"
+	"go_service/internal/customers"
 	"gorm.io/gorm"
 )
 
 func InitWebApp(db *gorm.DB, apiSettings infrastructure.CurrencyAPISettings) *fiber.App {
 	app := fiber.New()
 
-	subscribersApp := subscribers.NewApp(db)
+	subscribersApp := customers.NewApp(db)
 	currencyRateApp := currencyrate.NewApp(apiSettings)
 
-	app.Mount("/subscribers/", subscribersApp)
+	app.Mount("/customers/", subscribersApp)
 	app.Mount("/rates/", currencyRateApp)
 
 	return app

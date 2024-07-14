@@ -1,10 +1,10 @@
 package app
 
 import (
-	"go_service/internal/subscribers/adapters"
-	"go_service/internal/subscribers/presentation"
-	"go_service/internal/subscribers/services/getall"
-	"go_service/internal/subscribers/services/subscribe"
+	"go_service/internal/customers/adapters"
+	"go_service/internal/customers/presentation"
+	"go_service/internal/customers/services/getall"
+	"go_service/internal/customers/services/subscribe"
 	"gorm.io/gorm"
 )
 

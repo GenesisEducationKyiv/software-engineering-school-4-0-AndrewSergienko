@@ -2,9 +2,9 @@ package adapters
 
 import (
 	"github.com/stretchr/testify/suite"
+	"go_service/internal/customers/infrastructure/database/models"
 	"go_service/internal/infrastructure"
 	"go_service/internal/infrastructure/database"
-	"go_service/internal/subscribers/infrastructure/database/models"
 	"gorm.io/gorm"
 	"testing"
 )

@@ -18,3 +18,21 @@ func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
 	sa.db.Find(&subscribers)
 	return subscribers
 }
+
+func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
+	var subscribers []models.Subscriber
+	sa.db.Find(&subscribers, "email = ?", email)
+	if len(subscribers) == 0 {
+		return nil
+	}
+	return &subscribers[0]
+}
+
+func (sa *SubscriberAdapter) Create(email string) error {
+	subscriber := models.Subscriber{Email: email}
+	return sa.db.Create(&subscriber).Error
+}
+
+func (sa *SubscriberAdapter) Delete(email string) error {
+	return sa.db.Where("email = ?", email).Delete(&models.Subscriber{}).Error
+}

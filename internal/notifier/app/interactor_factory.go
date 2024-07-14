@@ -1,7 +1,9 @@
 package app
 
 import (
-	"go_service/internal/notifier/services"
+	"go_service/internal/notifier/services/createsubscriber"
+	"go_service/internal/notifier/services/deletesubscriber"
+	"go_service/internal/notifier/services/sendnotification"
 )
 
 type Interactor[InputDTO, OutputDTO any] interface {
@@ -9,5 +11,7 @@ type Interactor[InputDTO, OutputDTO any] interface {
 }
 
 type InteractorFactory interface {
-	SendNotification() Interactor[services.SendNotificationInputDTO, services.SendNotificationOutputDTO]
+	SendNotification() Interactor[sendnotification.InputData, sendnotification.OutputData]
+	CreateSubscriber() Interactor[createsubscriber.InputData, createsubscriber.OutputData]
+	DeleteSubscriber() Interactor[deletesubscriber.InputData, deletesubscriber.OutputData]
 }

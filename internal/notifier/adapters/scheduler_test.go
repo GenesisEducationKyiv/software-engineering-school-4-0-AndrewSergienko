@@ -14,7 +14,7 @@ type SchedulerAdapterTestSuite struct {
 	suite.Suite
 	db          *gorm.DB
 	transaction *gorm.DB
-	adapter     *ScheduleDBAdapter
+	adapter     *ScheduleAdapter
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupSuite() {
@@ -24,7 +24,7 @@ func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 
 func (suite *SchedulerAdapterTestSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	suite.adapter = NewScheduleDBAdapter(suite.transaction)
+	suite.adapter = NewScheduleAdapter(suite.transaction)
 }
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {

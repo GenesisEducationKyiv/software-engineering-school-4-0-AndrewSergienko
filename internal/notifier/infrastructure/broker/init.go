@@ -1,0 +1,5 @@
+package broker
+
+func NewConnection() {
+
+}

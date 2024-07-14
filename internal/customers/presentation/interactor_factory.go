@@ -1,8 +1,8 @@
 package presentation
 
 import (
-	"go_service/internal/subscribers/services/getall"
-	"go_service/internal/subscribers/services/subscribe"
+	"go_service/internal/customers/services/getall"
+	"go_service/internal/customers/services/subscribe"
 )
 
 type Interactor[InputDTO, OutputDTO any] interface {

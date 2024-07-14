@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/subscribers/presentation"
-	"go_service/internal/subscribers/presentation/handlers"
+	"go_service/internal/customers/presentation"
+	"go_service/internal/customers/presentation/handlers"
 )
 
 func NewWebApp(container presentation.InteractorFactory) *fiber.App {
