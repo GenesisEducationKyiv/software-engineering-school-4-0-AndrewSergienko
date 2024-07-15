@@ -47,7 +47,7 @@ func (suite *SendNotificationTestSuite) SetupSuite() {
 }
 
 func (suite *SendNotificationTestSuite) TestHandle() {
-	service := NewSendNotification(suite.emailGateway, suite.subscriberGateway, suite.currencyGateway)
+	service := New(suite.emailGateway, suite.subscriberGateway, suite.currencyGateway)
 	output := service.Handle(InputData{From: "USD", To: "EUR"})
 
 	suite.NoError(output.Err)

@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"go_service/internal/notifier/infrastructure"
+	"go_service/internal/infrastructure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"

@@ -43,14 +43,11 @@ func (rn RateNotifier) Run() {
 	// Check if notification was sent today and send it if not
 	now := time.Now()
 	lastTime := rn.schedulerGateway.GetLastTime()
-	if lastTime == nil {
+	midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	sendTime := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, now.Location())
+
+	if lastTime == nil || lastTime.Before(midnight) && now.After(sendTime) {
 		handler()
-	} else {
-		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		sendTime := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, now.Location())
-		if lastTime.Before(midnight) && now.After(sendTime) {
-			handler()
-		}
 	}
 
 	// Setup cron notifier job

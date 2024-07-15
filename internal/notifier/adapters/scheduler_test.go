@@ -19,7 +19,7 @@ type SchedulerAdapterTestSuite struct {
 
 func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
-	suite.db = database.InitDatabase(settings)
+	suite.db = database.New(settings)
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupTest() {

@@ -33,7 +33,7 @@ type SendNotification struct {
 	currencyGateway   CurrencyRateGateway
 }
 
-func NewSendNotification(
+func New(
 	emailGateway EmailGateway,
 	subscriberGateway SubscriberGateway,
 	currencyGateway CurrencyRateGateway,

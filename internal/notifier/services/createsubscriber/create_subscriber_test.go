@@ -32,7 +32,7 @@ func (suite *CreateSubscriberTestSuite) SetupSuite() {
 }
 
 func (suite *CreateSubscriberTestSuite) TestHandle() {
-	service := NewCreateSubscriber(suite.subscriberGateway)
+	service := New(suite.subscriberGateway)
 	data := InputData{Email: "test@gmail.com"}
 	suite.NoError(service.Handle(data).Err)
 	suite.NotNil(suite.subscriberGateway.GetByEmail(data.Email))

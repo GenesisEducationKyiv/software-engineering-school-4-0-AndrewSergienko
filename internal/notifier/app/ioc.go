@@ -28,13 +28,13 @@ func NewIoC(
 }
 
 func (ioc *IoC) SendNotification() Interactor[sendnotification.InputData, sendnotification.OutputData] {
-	return sendnotification.NewSendNotification(ioc.emailAdapter, &ioc.subscriberAdapter, ioc.currencyRateAdapter)
+	return sendnotification.New(ioc.emailAdapter, &ioc.subscriberAdapter, ioc.currencyRateAdapter)
 }
 
 func (ioc *IoC) CreateSubscriber() Interactor[createsubscriber.InputData, createsubscriber.OutputData] {
-	return createsubscriber.NewCreateSubscriber(&ioc.subscriberAdapter)
+	return createsubscriber.New(&ioc.subscriberAdapter)
 }
 
 func (ioc *IoC) DeleteSubscriber() Interactor[deletesubscriber.InputData, deletesubscriber.OutputData] {
-	return deletesubscriber.NewDeleteSubscriber(&ioc.subscriberAdapter)
+	return deletesubscriber.New(&ioc.subscriberAdapter)
 }

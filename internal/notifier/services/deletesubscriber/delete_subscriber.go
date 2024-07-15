@@ -16,7 +16,7 @@ type DeleteSubscriber struct {
 	subscriberGateway SubscriberGateway
 }
 
-func NewDeleteSubscriber(sg SubscriberGateway) *DeleteSubscriber {
+func New(sg SubscriberGateway) *DeleteSubscriber {
 	return &DeleteSubscriber{subscriberGateway: sg}
 }
 

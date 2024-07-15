@@ -1,10 +1,10 @@
 package main
 
 import (
-	"go_service/internal/app"
-	currencyRateInfrastructure "go_service/internal/currencyrate/infrastructure"
-	"go_service/internal/infrastructure"
-	"go_service/internal/infrastructure/database"
+	"go_service/internal/rateservice/app"
+	currencyRateInfrastructure "go_service/internal/rateservice/currencyrate/infrastructure"
+	"go_service/internal/rateservice/infrastructure"
+	"go_service/internal/rateservice/infrastructure/database"
 	"log"
 )
 
@@ -13,7 +13,7 @@ func main() {
 	currencyAPISettings := currencyRateInfrastructure.GetCurrencyAPISettings()
 	databaseSettings := infrastructure.GetDatabaseSettings()
 
-	db := database.InitDatabase(databaseSettings)
+	db := database.New(databaseSettings)
 
 	// web app
 	webApp := app.InitWebApp(db, currencyAPISettings)

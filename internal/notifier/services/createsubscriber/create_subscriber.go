@@ -22,7 +22,7 @@ type CreateSubscriber struct {
 	subscriberGateway SubscriberGateway
 }
 
-func NewCreateSubscriber(sg SubscriberGateway) *CreateSubscriber {
+func New(sg SubscriberGateway) *CreateSubscriber {
 	return &CreateSubscriber{subscriberGateway: sg}
 }
 

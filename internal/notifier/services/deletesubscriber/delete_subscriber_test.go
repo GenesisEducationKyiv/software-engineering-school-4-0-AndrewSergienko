@@ -30,7 +30,7 @@ func (suite *DeleteSubscriberTestSuite) SetupSuite() {
 }
 
 func (suite *DeleteSubscriberTestSuite) TestHandle() {
-	service := NewDeleteSubscriber(suite.subscriberGateway)
+	service := New(suite.subscriberGateway)
 	suite.NoError(service.Handle(InputData{Email: "test@gmail.com"}).Err)
 	suite.True(suite.subscriberGateway.(*SubscriberGatewayMock).subscriberDeleted)
 }

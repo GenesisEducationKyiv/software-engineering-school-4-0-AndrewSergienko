@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"go_service/internal/notifier"
 	"go_service/internal/notifier/infrastructure"
+	"go_service/internal/notifier/infrastructure/broker"
 	"go_service/internal/notifier/infrastructure/database"
 	"os"
 	"path/filepath"
@@ -26,9 +26,10 @@ func main() {
 		panic(err)
 	}
 
-	db := database.InitDatabase(databaseSettings)
-	conn, _ := nats.Connect(nats.DefaultURL)
-	defer conn.Close()
+	db := database.New(databaseSettings)
+
+	conn := broker.New()
+	defer broker.Finalize(conn)
 
 	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings)
 	consumer := notifier.NewConsumer(db, conn)

@@ -2,9 +2,9 @@ package adapters
 
 import (
 	"github.com/stretchr/testify/suite"
-	"go_service/internal/infrastructure"
-	"go_service/internal/infrastructure/database"
-	"go_service/internal/notifier/infrastructure/database/models"
+	"go_service/internal/rateservice/customers/infrastructure/database/models"
+	"go_service/internal/rateservice/infrastructure"
+	"go_service/internal/rateservice/infrastructure/database"
 	"gorm.io/gorm"
 	"testing"
 )
@@ -13,7 +13,7 @@ type SubscriberAdapterTestSuite struct {
 	suite.Suite
 	db          *gorm.DB
 	transaction *gorm.DB
-	adapter     SubscriberAdapter
+	adapter     *SubscriberAdapter
 }
 
 func (suite *SubscriberAdapterTestSuite) SetupSuite() {
@@ -28,6 +28,34 @@ func (suite *SubscriberAdapterTestSuite) SetupTest() {
 
 func (suite *SubscriberAdapterTestSuite) TearDownTest() {
 	suite.transaction.Rollback()
+}
+
+func (suite *SubscriberAdapterTestSuite) TestGetByEmail() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	subscriber := suite.adapter.GetByEmail(email)
+
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreate() {
+	email := "test@gmail.com"
+
+	err := suite.adapter.Create(email)
+
+	suite.Nil(err)
+
+	subscriber := suite.adapter.GetByEmail(email)
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreateDuplicate() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	err := suite.adapter.Create(email)
+	suite.NotNil(err)
 }
 
 func (suite *SubscriberAdapterTestSuite) TestGetAll() {
