@@ -20,7 +20,7 @@ type SubscriberGateway interface {
 }
 
 type EventEmitter interface {
-	Emit(event string, data map[string]interface{}) error
+	Emit(name string, data map[string]interface{}) error
 }
 
 type Subscribe struct {
@@ -28,8 +28,8 @@ type Subscribe struct {
 	eventEmitter      EventEmitter
 }
 
-func New(sg SubscriberGateway) *Subscribe {
-	return &Subscribe{subscriberGateway: sg}
+func New(sg SubscriberGateway, em EventEmitter) *Subscribe {
+	return &Subscribe{subscriberGateway: sg, eventEmitter: em}
 }
 
 func (s *Subscribe) Handle(data InputDTO) OutputDTO {
