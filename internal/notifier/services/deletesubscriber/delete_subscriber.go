@@ -1,9 +1,5 @@
 package deletesubscriber
 
-import (
-	"go_service/internal/notifier/infrastructure/database/models"
-)
-
 type InputData struct {
 	Email string
 }
@@ -14,7 +10,6 @@ type OutputData struct {
 
 type SubscriberGateway interface {
 	Delete(email string) error
-	GetByEmail(email string) *models.Subscriber
 }
 
 type DeleteSubscriber struct {
