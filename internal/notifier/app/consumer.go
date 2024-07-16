@@ -45,14 +45,12 @@ func (c Consumer) Run() {
 	log.Printf("Consumer started")
 }
 
-func userCreatedHandle(message Message, container InteractorFactory) *Message {
+func userCreatedHandle(message Message, container InteractorFactory) {
 	interactor := container.CreateSubscriber()
 	interactor.Handle(createsubscriber.InputData{Email: message.Data["email"].(string)})
-	return nil
 }
 
-func userDeletedHandle(message Message, container InteractorFactory) *Message {
+func userDeletedHandle(message Message, container InteractorFactory) {
 	interactor := container.DeleteSubscriber()
 	interactor.Handle(deletesubscriber.InputData{Email: message.Data["email"].(string)})
-	return nil
 }

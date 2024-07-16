@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func fetchEnv(name string, strict bool) string {
+func fetchEnv(name string, strict bool) string { // nolint: all
 	value := os.Getenv(name)
 	if value == "" {
 		if strict {
