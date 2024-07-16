@@ -17,7 +17,7 @@ type SubscribeHandler struct {
 	container presentation.InteractorFactory
 }
 
-func NewSubscriberHandlers(container presentation.InteractorFactory) *SubscribeHandler {
+func NewSubscriberHandler(container presentation.InteractorFactory) *SubscribeHandler {
 	return &SubscribeHandler{container}
 }
 

@@ -16,7 +16,6 @@ type OutputDTO struct {
 
 type SubscriberGateway interface {
 	Create(email string) error
-	Delete(id int) error
 	GetByEmail(email string) *models.Subscriber
 }
 
