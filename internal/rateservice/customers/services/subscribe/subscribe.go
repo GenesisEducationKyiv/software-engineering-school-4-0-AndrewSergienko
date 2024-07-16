@@ -3,6 +3,7 @@ package subscribe
 import (
 	"go_service/internal/rateservice/customers/infrastructure/database/models"
 	"go_service/internal/rateservice/customers/services"
+	"log"
 )
 
 type InputDTO struct {
@@ -39,6 +40,7 @@ func (s *Subscribe) Handle(data InputDTO) OutputDTO {
 	err := s.subscriberGateway.Create(data.Email)
 	if err == nil {
 		err = s.eventEmitter.Emit("UserCreated", map[string]interface{}{"email": data.Email})
+		log.Println("UserCreated event emitted")
 	}
 	return OutputDTO{err}
 }
