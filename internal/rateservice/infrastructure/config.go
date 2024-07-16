@@ -24,6 +24,20 @@ type DatabaseSettings struct {
 	Database string
 }
 
+type CurrencyAPISettings struct {
+	CurrencyAPIURL     string
+	FawazaAPIURL       string
+	ExchangerateAPIURL string
+}
+
+func GetCurrencyAPISettings() CurrencyAPISettings {
+	return CurrencyAPISettings{
+		CurrencyAPIURL:     fetchEnv("CURRENCY_API_URL", false),
+		FawazaAPIURL:       fetchEnv("FAWAZA_API_URL", false),
+		ExchangerateAPIURL: fetchEnv("EXCHANGERATE_API_URL", false),
+	}
+}
+
 func GetDatabaseSettings() DatabaseSettings {
 	return DatabaseSettings{
 		User:     fetchEnv("POSTGRES_USER", true),
