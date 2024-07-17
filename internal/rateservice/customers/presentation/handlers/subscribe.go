@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/customers/presentation"
-	"go_service/internal/customers/services"
-	"go_service/internal/customers/services/subscribe"
+	"go_service/internal/rateservice/customers/presentation"
+	"go_service/internal/rateservice/customers/services"
+	"go_service/internal/rateservice/customers/services/subscribe"
 	"net/mail"
 )
 
@@ -17,7 +17,7 @@ type SubscribeHandler struct {
 	container presentation.InteractorFactory
 }
 
-func NewSubscriberHandlers(container presentation.InteractorFactory) *SubscribeHandler {
+func NewSubscriberHandler(container presentation.InteractorFactory) *SubscribeHandler {
 	return &SubscribeHandler{container}
 }
 

@@ -23,7 +23,11 @@ func (sa ScheduleAdapter) GetLastTime() *time.Time {
 	if err != nil {
 		return nil
 	}
+
 	lastSentTime, err := time.Parse(time.RFC3339, data.LastSentTime)
+	if err != nil {
+		return nil
+	}
 	return &lastSentTime
 }
 
@@ -47,6 +51,6 @@ func writeJSON(filename string, data TimeData) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(filename, file, 0644)
+	err = os.WriteFile(filename, file, 0600)
 	return err
 }

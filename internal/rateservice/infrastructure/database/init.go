@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"go_service/internal/infrastructure"
+	"go_service/internal/rateservice/infrastructure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"

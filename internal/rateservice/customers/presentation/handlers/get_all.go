@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
-	"go_service/internal/customers/presentation"
-	"go_service/internal/customers/services/getall"
+	"go_service/internal/rateservice/customers/presentation"
+	"go_service/internal/rateservice/customers/services/getall"
 )
 
 type GetAll interface {

@@ -21,5 +21,5 @@ func main() {
 
 	// web app
 	webApp := app.InitWebApp(db, conn, currencyAPISettings)
-	log.Fatalf("App failed with error: %v", webApp.Listen(":8080"))
+	log.Printf("App failed with error: %v", webApp.Listen(":8080"))
 }

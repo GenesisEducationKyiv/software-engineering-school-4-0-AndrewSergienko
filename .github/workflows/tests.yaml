@@ -34,6 +34,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: goservice
 
+      nats:
+        image: nats:latest
+        ports: ['4222:4222']
+
       mailhog:
         image: mailhog/mailhog
         ports: [ '1025:1025', '8025:8025' ]
@@ -55,7 +59,7 @@ jobs:
 
     - name: Run database migrations
       run: |
-        goose -dir internal/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
+        goose -dir internal/rateservice/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
 
     - name: Run tests
       run: go test -v ./...

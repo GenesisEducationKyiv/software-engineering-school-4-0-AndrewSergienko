@@ -10,7 +10,7 @@ type EmailGatewayMock struct {
 	EmailsNotified []string
 }
 
-func (eg *EmailGatewayMock) Send(target string, rate float32) error {
+func (eg *EmailGatewayMock) Send(target string, rate float32) error { // nolint: all
 	eg.EmailsNotified = append(eg.EmailsNotified, target)
 	return nil
 }
@@ -25,7 +25,7 @@ func (sg *SubscriberGatewayMock) GetAll() []models.Subscriber {
 
 type CurrencyRateGatewayMock struct{}
 
-func (cr *CurrencyRateGatewayMock) GetCurrencyRate(from string, to string) (float32, error) {
+func (cr *CurrencyRateGatewayMock) GetCurrencyRate(from string, to string) (float32, error) { // nolint: all
 	return 1.5, nil
 }
 

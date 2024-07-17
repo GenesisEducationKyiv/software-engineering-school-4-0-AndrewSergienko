@@ -27,8 +27,8 @@ func (sa *SubscriberAdapter) Create(email string) error {
 	return sa.db.Create(&subscriber).Error
 }
 
-func (sa *SubscriberAdapter) Delete(id int) error {
-	return sa.db.Delete(&models.Subscriber{}, id).Error
+func (sa *SubscriberAdapter) DeleteByEmail(email string) error {
+	return sa.db.Where("email = ?", email).Delete(&models.Subscriber{}).Error
 }
 
 func (sa *SubscriberAdapter) GetAll() []models.Subscriber {

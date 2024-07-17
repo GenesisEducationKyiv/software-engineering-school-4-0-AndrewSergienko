@@ -6,6 +6,7 @@ import (
 	"go_service/internal/rateservice/customers/presentation"
 	"go_service/internal/rateservice/customers/services/getall"
 	"go_service/internal/rateservice/customers/services/subscribe"
+	"go_service/internal/rateservice/customers/services/unsubscribe"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +27,13 @@ func (ioc *IoC) Subscribe() presentation.Interactor[
 	subscribe.OutputDTO,
 ] {
 	return subscribe.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
+}
+
+func (ioc *IoC) Unsubscribe() presentation.Interactor[
+	unsubscribe.InputDTO,
+	unsubscribe.OutputDTO,
+] {
+	return unsubscribe.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
 }
 
 func (ioc *IoC) GetAll() presentation.Interactor[
