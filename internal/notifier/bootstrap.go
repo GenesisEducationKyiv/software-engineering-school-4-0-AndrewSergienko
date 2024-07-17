@@ -19,7 +19,7 @@ func NewTask(
 	return app.NewRateNotifier(container, schedulerGateway)
 }
 
-func NewConsumer(db *gorm.DB, nc *nats.Conn) app.Consumer {
+func NewConsumer(db *gorm.DB, js nats.JetStreamContext) app.Consumer {
 	container := app.NewIoC(db, nil, infrastructure.EmailSettings{})
-	return app.NewConsumer(nc, container)
+	return app.NewConsumer(js, container)
 }

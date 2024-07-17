@@ -28,11 +28,11 @@ func main() {
 
 	db := database.New(databaseSettings)
 
-	conn := broker.New()
+	conn, js := broker.New()
 	defer broker.Finalize(conn)
 
 	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings)
-	consumer := notifier.NewConsumer(db, conn)
+	consumer := notifier.NewConsumer(db, js)
 
 	task.Run()
 	consumer.Run()
