@@ -3,7 +3,10 @@ package app
 import (
 	"go_service/internal/notifier/adapters"
 	"go_service/internal/notifier/infrastructure"
-	"go_service/internal/notifier/services"
+	"go_service/internal/notifier/services/createsubscriber"
+	"go_service/internal/notifier/services/deletesubscriber"
+	"go_service/internal/notifier/services/sendnotification"
+	"gorm.io/gorm"
 )
 
 type IoC struct {
@@ -13,20 +16,25 @@ type IoC struct {
 }
 
 func NewIoC(
+	db *gorm.DB,
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
-	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
 ) *IoC {
 	return &IoC{
 		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyServiceSettings),
-		subscriberAdapter:   adapters.NewSubscriberAdapter(subscriberServiceSettings),
+		subscriberAdapter:   adapters.NewSubscriberAdapter(db),
 		emailAdapter:        adapters.NewEmailAdapter(emailSettings),
 	}
 }
 
-func (ioc *IoC) SendNotification() Interactor[
-	services.SendNotificationInputDTO,
-	services.SendNotificationOutputDTO,
-] {
-	return services.NewSendNotification(ioc.emailAdapter, ioc.subscriberAdapter, ioc.currencyRateAdapter)
+func (ioc *IoC) SendNotification() Interactor[sendnotification.InputData, sendnotification.OutputData] {
+	return sendnotification.New(ioc.emailAdapter, &ioc.subscriberAdapter, ioc.currencyRateAdapter)
+}
+
+func (ioc *IoC) CreateSubscriber() Interactor[createsubscriber.InputData, createsubscriber.OutputData] {
+	return createsubscriber.New(&ioc.subscriberAdapter)
+}
+
+func (ioc *IoC) DeleteSubscriber() Interactor[deletesubscriber.InputData, deletesubscriber.OutputData] {
+	return deletesubscriber.New(&ioc.subscriberAdapter)
 }

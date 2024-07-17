@@ -1,68 +1,60 @@
 package app
 
 import (
-	"go_service/internal/notifier/services"
+	"github.com/robfig/cron/v3"
+	"go_service/internal/notifier/services/sendnotification"
 	"log"
 	"time"
 )
 
-type SchedulerTimeGateway interface {
+type SchedulerGateway interface {
 	GetLastTime() *time.Time
-	SetLastTime() error
+	SetLastTime(lastTime time.Time) error
 }
 
-type EmailGateway interface {
-	Send(target string, rate float32) error
+type RateNotifier struct {
+	container        InteractorFactory
+	schedulerGateway SchedulerGateway
+	cronObj          *cron.Cron
 }
 
-type CurrencyGateway interface {
-	GetCurrencyRate(from string, to string) (float32, error)
-}
-
-type RateMailer struct {
-	container            InteractorFactory
-	schedulerTimeGateway SchedulerTimeGateway
-}
-
-func NewRateMailer(
+func NewRateNotifier(
 	container InteractorFactory,
-	sg SchedulerTimeGateway,
-) RateMailer {
-	return RateMailer{container: container, schedulerTimeGateway: sg}
+	schedulerGateway SchedulerGateway,
+) RateNotifier {
+	return RateNotifier{container: container, schedulerGateway: schedulerGateway, cronObj: cron.New()}
 }
 
-func (ms RateMailer) Run() {
-	lastTime := ms.schedulerTimeGateway.GetLastTime()
+func (rn RateNotifier) Run() {
+	interactor := rn.container.SendNotification()
+
+	handler := func() {
+		if interactor.Handle(sendnotification.InputData{From: "USD", To: "UAH"}).Err != nil {
+			log.Printf("EMAIL SEND ERROR")
+		} else {
+			log.Printf("EMAIL SEND SUCCESS")
+			err := rn.schedulerGateway.SetLastTime(time.Now())
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	// Check if notification was sent today and send it if not
 	now := time.Now()
+	lastTime := rn.schedulerGateway.GetLastTime()
+	midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	sendTime := time.Date(now.Year(), now.Month(), now.Day(), 9, 0, 0, 0, now.Location())
 
-	if (lastTime != nil && lastTime.Day() < now.Day() && lastTime.Hour() >= now.Hour()) || lastTime == nil {
-		ms.RunSending()
-		lastTime = &now
+	if lastTime == nil || lastTime.Before(midnight) && now.After(sendTime) {
+		handler()
 	}
 
-	for {
-		time.Sleep(time.Until(ms.GetNextTime(lastTime)))
-		ms.RunSending()
-		lastTime = &now
-	}
-}
-
-func (ms RateMailer) RunSending() {
-	err := ms.SendRateToAll()
+	// Setup cron notifier job
+	_, err := rn.cronObj.AddFunc("0 9 * * *", handler)
 	if err != nil {
-		log.Printf("Failed to send rate mail to all emails: %v\n", err)
+		return
 	}
-	err = ms.schedulerTimeGateway.SetLastTime()
-	if err != nil {
-		log.Printf("Failed to save last sending time: %v\n", err)
-	}
-}
-
-func (ms RateMailer) SendRateToAll() error {
-	interactor := ms.container.SendNotification()
-	return interactor.Handle(services.SendNotificationInputDTO{From: "USD", To: "UAH"}).Err
-}
-
-func (RateMailer) GetNextTime(lt *time.Time) time.Time {
-	return lt.Add(24 * time.Hour)
+	rn.cronObj.Start()
+	log.Printf("CRON STARTED")
 }

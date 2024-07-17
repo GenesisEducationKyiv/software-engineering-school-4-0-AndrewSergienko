@@ -1,38 +1,38 @@
 package adapters
 
 import (
-	"encoding/json"
-	"go_service/internal/notifier/infrastructure"
+	"go_service/internal/notifier/infrastructure/database/models"
+	"gorm.io/gorm"
 )
 
-type Subscriber struct {
-	Email string `json:"Email"`
-}
-
 type SubscriberAdapter struct {
-	subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings
+	db *gorm.DB
 }
 
-func NewSubscriberAdapter(subscriberServiceSettings *infrastructure.SubscriberServiceAPISettings) SubscriberAdapter {
-	return SubscriberAdapter{subscriberServiceSettings: subscriberServiceSettings}
+func NewSubscriberAdapter(db *gorm.DB) SubscriberAdapter {
+	return SubscriberAdapter{db: db}
 }
 
-func (adapter SubscriberAdapter) GetAll() ([]string, error) {
-	url := adapter.subscriberServiceSettings.Host + adapter.subscriberServiceSettings.GetSubscribersURL
-	body, err := ReadHTTP(url)
+func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
+	var subscribers []models.Subscriber
+	sa.db.Find(&subscribers)
+	return subscribers
+}
 
-	if err != nil {
-		return nil, err
+func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
+	var subscribers []models.Subscriber
+	sa.db.Find(&subscribers, "email = ?", email)
+	if len(subscribers) == 0 {
+		return nil
 	}
+	return &subscribers[0]
+}
 
-	var response []Subscriber
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return nil, err
-	}
-	emails := make([]string, len(response))
-	for i, subscriber := range response {
-		emails[i] = subscriber.Email
-	}
-	return emails, nil
+func (sa *SubscriberAdapter) Create(email string) error {
+	subscriber := models.Subscriber{Email: email}
+	return sa.db.Create(&subscriber).Error
+}
+
+func (sa *SubscriberAdapter) Delete(email string) error {
+	return sa.db.Where("email = ?", email).Delete(&models.Subscriber{}).Error
 }

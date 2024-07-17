@@ -1,34 +1,56 @@
 package adapters
 
 import (
-	"go_service/internal/infrastructure/database/models"
-	"gorm.io/gorm"
+	"encoding/json"
+	"os"
 	"time"
 )
 
-type ScheduleDBAdapter struct {
-	db *gorm.DB
+type TimeData struct {
+	LastSentTime string `json:"last_sent_time"`
 }
 
-func NewScheduleDBAdapter(db *gorm.DB) *ScheduleDBAdapter {
-	return &ScheduleDBAdapter{db: db}
+type ScheduleAdapter struct {
+	filename string
 }
 
-func (sa ScheduleDBAdapter) GetLastTime() *time.Time {
-	var lastTime models.ScheduleTime
-	result := sa.db.Last(&lastTime)
-	if result.Error != nil {
+func NewScheduleAdapter() *ScheduleAdapter {
+	return &ScheduleAdapter{filename: "conf/email_sent_time.json"}
+}
+
+func (sa ScheduleAdapter) GetLastTime() *time.Time {
+	data, err := readJSON(sa.filename)
+	if err != nil {
 		return nil
 	}
-	lastTimeUnix := time.Unix(lastTime.Time, 0)
-	return &lastTimeUnix
+
+	lastSentTime, err := time.Parse(time.RFC3339, data.LastSentTime)
+	if err != nil {
+		return nil
+	}
+	return &lastSentTime
 }
 
-func (sa ScheduleDBAdapter) SetLastTime() error {
-	schedulerTime := models.ScheduleTime{Time: time.Now().Unix()}
-	result := sa.db.Create(&schedulerTime)
-	if result.Error != nil {
-		return result.Error
+func (sa ScheduleAdapter) SetLastTime(lastTime time.Time) error {
+	data := TimeData{LastSentTime: lastTime.Format(time.RFC3339)}
+	return writeJSON(sa.filename, data)
+}
+
+func readJSON(filename string) (TimeData, error) {
+	var data TimeData
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return data, err
 	}
-	return nil
+	err = json.Unmarshal(file, &data)
+	return data, err
+}
+
+func writeJSON(filename string, data TimeData) error {
+	file, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(filename, file, 0600)
+	return err
 }
