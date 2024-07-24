@@ -3,8 +3,8 @@ package app
 import (
 	"bytes"
 	"github.com/gofiber/fiber/v2"
+	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/suite"
-	currencyInfrastructure "go_service/internal/rateservice/currencyrate/infrastructure"
 	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/infrastructure"
 	"go_service/internal/rateservice/infrastructure/broker"
@@ -20,6 +20,7 @@ type SubscribersPresentationSuite struct {
 	db                *gorm.DB
 	transaction       *gorm.DB
 	webApp            *fiber.App
+	conn              *nats.Conn
 	subscriberGateway *adapters.SubscriberAdapter
 }
 
@@ -31,14 +32,17 @@ func (suite *SubscribersPresentationSuite) SetupSuite() {
 
 func (suite *SubscribersPresentationSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	currencyAPISettings := currencyInfrastructure.GetCurrencyAPISettings()
+	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
-	suite.webApp = InitWebApp(suite.transaction, broker.New(), currencyAPISettings)
+	conn, js := broker.New()
+	suite.conn = conn
+	suite.webApp = InitWebApp(suite.transaction, js, currencyAPISettings)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {
 	suite.db.Rollback()
+	broker.Finalize(suite.conn)
 }
 
 func (suite *SubscribersPresentationSuite) TestAddSubscriber() {

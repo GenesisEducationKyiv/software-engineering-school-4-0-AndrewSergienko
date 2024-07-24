@@ -1,9 +1,9 @@
 package presentation
 
 import (
+	"go_service/internal/rateservice/customers/services/createcustomer"
+	"go_service/internal/rateservice/customers/services/deletecustomer"
 	"go_service/internal/rateservice/customers/services/getall"
-	"go_service/internal/rateservice/customers/services/subscribe"
-	"go_service/internal/rateservice/customers/services/unsubscribe"
 )
 
 type Interactor[InputDTO, OutputDTO any] interface {
@@ -11,7 +11,7 @@ type Interactor[InputDTO, OutputDTO any] interface {
 }
 
 type InteractorFactory interface {
-	Subscribe() Interactor[subscribe.InputDTO, subscribe.OutputDTO]
-	Unsubscribe() Interactor[unsubscribe.InputDTO, unsubscribe.OutputDTO]
+	CreateCustomer() Interactor[createcustomer.InputData, createcustomer.OutputData]
+	DeleteCustomer() Interactor[deletecustomer.InputData, deletecustomer.OutputData]
 	GetAll() Interactor[getall.InputDTO, getall.OutputDTO]
 }

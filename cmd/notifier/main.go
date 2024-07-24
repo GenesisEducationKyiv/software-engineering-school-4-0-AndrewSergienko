@@ -30,8 +30,12 @@ func main() {
 
 	conn, js := broker.New()
 	defer broker.Finalize(conn)
+	err = broker.NewStream(js, "events")
+	if err != nil {
+		panic(err)
+	}
 
-	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings)
+	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings, js)
 	consumer := notifier.NewConsumer(db, js)
 
 	task.Run()

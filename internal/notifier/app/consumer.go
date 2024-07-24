@@ -3,37 +3,30 @@ package app
 import (
 	"encoding/json"
 	"github.com/nats-io/nats.go"
-	"go_service/internal/notifier/infrastructure/broker"
 	"go_service/internal/notifier/services/createsubscriber"
 	"go_service/internal/notifier/services/deletesubscriber"
 	"log"
 )
 
 type Message struct {
-	Title string                 `json:"title"`
-	Type  string                 `json:"type"`
-	Data  map[string]interface{} `json:"data"`
+	Title         string                 `json:"title"`
+	Type          string                 `json:"type"`
+	TransactionID *string                `json:"transaction_id"`
+	From          string                 `json:"from"`
+	Data          map[string]interface{} `json:"data"`
 }
 
 type Consumer struct {
-	js        nats.JetStreamContext
+	conn      nats.JetStreamContext
 	container InteractorFactory
 }
 
-func NewConsumer(js nats.JetStreamContext, container InteractorFactory) Consumer {
-	return Consumer{js: js, container: container}
+func NewConsumer(conn nats.JetStreamContext, container InteractorFactory) Consumer {
+	return Consumer{conn: conn, container: container}
 }
 
 func (c Consumer) Run() {
-	stream, err := c.js.StreamInfo("events")
-	if stream == nil {
-		err = broker.NewStream(c.js, "events")
-		if err != nil {
-			return
-		}
-	}
-
-	_, err = c.js.Subscribe("events", newMessageHandler(c.container))
+	_, err := c.conn.Subscribe("events.*", newMessageHandler(c.container))
 	if err != nil {
 		return
 	}
@@ -42,6 +35,7 @@ func (c Consumer) Run() {
 
 func newMessageHandler(container InteractorFactory) func(msg *nats.Msg) {
 	return func(msg *nats.Msg) {
+		log.Println("Consumed event")
 		var event Message
 		err := json.Unmarshal(msg.Data, &event)
 		if err != nil {
@@ -51,19 +45,19 @@ func newMessageHandler(container InteractorFactory) func(msg *nats.Msg) {
 
 		switch event.Title {
 		case "UserCreated":
-			userCreatedHandle(event, container)
+			interactor := container.CreateSubscriber()
+			inputData := createsubscriber.InputData{
+				Email:         event.Data["Email"].(string),
+				TransactionID: event.TransactionID,
+			}
+			interactor.Handle(inputData)
 		case "UserDeleted":
-			userDeletedHandle(event, container)
+			interactor := container.DeleteSubscriber()
+			inputData := deletesubscriber.InputData{
+				Email:         event.Data["Email"].(string),
+				TransactionID: event.TransactionID,
+			}
+			interactor.Handle(inputData)
 		}
 	}
-}
-
-func userCreatedHandle(message Message, container InteractorFactory) {
-	interactor := container.CreateSubscriber()
-	interactor.Handle(createsubscriber.InputData{Email: message.Data["email"].(string)})
-}
-
-func userDeletedHandle(message Message, container InteractorFactory) {
-	interactor := container.DeleteSubscriber()
-	interactor.Handle(deletesubscriber.InputData{Email: message.Data["email"].(string)})
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/nats-io/nats.go"
 	"log"
-	"time"
 )
 
 type Message struct {
@@ -24,7 +23,7 @@ func NewNatsEventEmitter(conn nats.JetStreamContext) NatsEventEmitter {
 }
 
 func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transactionID *string) error {
-	message := Message{Title: name, Type: "event", From: "customers", Data: data, TransactionID: transactionID}
+	message := Message{Title: name, Type: "event", From: "notifier", Data: data, TransactionID: transactionID}
 	serializedData, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -34,31 +33,8 @@ func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transac
 	if transactionID != nil {
 		subject = "events." + *transactionID
 	}
-
 	log.Printf("Emitting event: %s to %s\n", name, subject)
+
 	_, err = e.conn.Publish(subject, serializedData)
 	return err
-}
-
-func (e NatsEventEmitter) GetMessages(transactionID string, batchSize int) []Message {
-	subject := "events." + transactionID
-	sub, err := e.conn.PullSubscribe(subject, "")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	msgs, err := sub.Fetch(batchSize, nats.MaxWait(5*time.Second))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var messages []Message
-	for _, msg := range msgs {
-		var message Message
-		err = json.Unmarshal(msg.Data, &message)
-		if err == nil {
-			messages = append(messages, message)
-		}
-	}
-	return messages
 }
