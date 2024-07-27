@@ -1,13 +1,14 @@
 package broker
 
 import (
-	"errors"
+	"context"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 )
 
-func New() (*nats.Conn, nats.JetStreamContext) {
+func New() (*nats.Conn, jetstream.JetStream) {
 	conn, _ := nats.Connect("nats://localhost:4222")
-	js, _ := conn.JetStream()
+	js, _ := jetstream.New(conn)
 	return conn, js
 }
 
@@ -15,22 +16,9 @@ func Finalize(conn *nats.Conn) {
 	conn.Close()
 }
 
-func NewStream(js nats.JetStreamContext, name string) error {
-	stream, err := js.StreamInfo(name)
-	if err != nil {
-		var jsErr *nats.APIError
-		if errors.As(err, &jsErr) && jsErr.Code != 404 {
-			return err
-		}
-	}
-	if stream == nil {
-		_, err = js.AddStream(&nats.StreamConfig{
-			Name:     name,
-			Subjects: []string{name + ".*"},
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return err
+func NewStream(ctx context.Context, js jetstream.JetStream, name string) (jetstream.Stream, error) {
+	return js.CreateStream(ctx, jetstream.StreamConfig{
+		Name:     name,
+		Subjects: []string{name + ".*"},
+	})
 }

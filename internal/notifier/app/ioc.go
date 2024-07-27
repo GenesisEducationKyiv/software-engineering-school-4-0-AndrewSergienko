@@ -1,7 +1,8 @@
 package app
 
 import (
-	"github.com/nats-io/nats.go"
+	"context"
+	"github.com/nats-io/nats.go/jetstream"
 	"go_service/internal/notifier/adapters"
 	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/services/createsubscriber"
@@ -18,16 +19,17 @@ type IoC struct {
 }
 
 func NewIoC(
+	ctx context.Context,
 	db *gorm.DB,
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
-	conn nats.JetStreamContext,
+	conn jetstream.JetStream,
 ) *IoC {
 	return &IoC{
 		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyServiceSettings),
 		subscriberAdapter:   adapters.NewSubscriberAdapter(db),
 		emailAdapter:        adapters.NewEmailAdapter(emailSettings),
-		eventEmitter:        adapters.NewNatsEventEmitter(conn),
+		eventEmitter:        adapters.NewNatsEventEmitter(ctx, conn),
 	}
 }
 

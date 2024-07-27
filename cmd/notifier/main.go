@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"go_service/internal/notifier"
 	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/infrastructure/broker"
 	"go_service/internal/notifier/infrastructure/database"
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func main() {
@@ -26,19 +29,29 @@ func main() {
 		panic(err)
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
 	db := database.New(databaseSettings)
 
 	conn, js := broker.New()
 	defer broker.Finalize(conn)
-	err = broker.NewStream(js, "events")
+	_, err = broker.NewStream(ctx, js, "events")
 	if err != nil {
 		panic(err)
 	}
 
-	task := notifier.NewTask(db, servicesAPISettings.CurrencyRate, emailSettings, js)
-	consumer := notifier.NewConsumer(db, js)
+	task := notifier.NewTask(ctx, db, servicesAPISettings.CurrencyRate, emailSettings, js)
+	consumer := notifier.NewConsumer(ctx, db, js)
 
-	task.Run()
-	consumer.Run()
+	taskContext := task.Run()
+	defer taskContext.Stop()
+
+	consumeContext, err := consumer.Run()
+	if err != nil {
+		log.Printf("Error starting consumer: %s", err)
+		return
+	}
+	defer consumeContext.Stop()
 	select {}
 }

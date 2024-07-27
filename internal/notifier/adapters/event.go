@@ -1,9 +1,11 @@
 package adapters
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"log"
+	"time"
 )
 
 type Message struct {
@@ -15,11 +17,12 @@ type Message struct {
 }
 
 type NatsEventEmitter struct {
-	conn nats.JetStreamContext
+	ctx  context.Context
+	conn jetstream.JetStream
 }
 
-func NewNatsEventEmitter(conn nats.JetStreamContext) NatsEventEmitter {
-	return NatsEventEmitter{conn: conn}
+func NewNatsEventEmitter(ctx context.Context, conn jetstream.JetStream) NatsEventEmitter {
+	return NatsEventEmitter{ctx: ctx, conn: conn}
 }
 
 func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transactionID *string) error {
@@ -33,8 +36,12 @@ func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transac
 	if transactionID != nil {
 		subject = "events." + *transactionID
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
 	log.Printf("Emitting event: %s to %s\n", name, subject)
 
-	_, err = e.conn.Publish(subject, serializedData)
+	_, err = e.conn.Publish(ctx, subject, serializedData)
 	return err
 }

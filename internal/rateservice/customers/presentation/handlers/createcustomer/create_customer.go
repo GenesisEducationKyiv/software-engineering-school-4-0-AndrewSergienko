@@ -13,6 +13,7 @@ import (
 
 type EventGateway interface {
 	GetMessages(transactionID string, batchSize int) []adapters.Message
+	Emit(name string, data map[string]interface{}, transactionID *string) error
 }
 
 type Handler struct {
@@ -24,7 +25,7 @@ func New(container presentation.InteractorFactory, eventGateway EventGateway) *H
 	return &Handler{container, eventGateway}
 }
 
-func (sh *Handler) HandleRequest(c *fiber.Ctx) error {
+func (h *Handler) HandleRequest(c *fiber.Ctx) error {
 	var requestData struct {
 		Email string `json:"email"`
 	}
@@ -39,7 +40,7 @@ func (sh *Handler) HandleRequest(c *fiber.Ctx) error {
 
 	transactionID := uuid.New().String()
 	inputData := createcustomer.InputData{Email: requestData.Email, TransactionID: &transactionID, IsRollback: false}
-	result := sh.container.CreateCustomer().Handle(inputData)
+	result := h.container.CreateCustomer().Handle(inputData)
 
 	if result.Err != nil {
 		if errors.Is(result.Err, &services.EmailConflictError{}) {
@@ -48,7 +49,7 @@ func (sh *Handler) HandleRequest(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	messages := sh.eventGateway.GetMessages(transactionID, 2)
+	messages := h.eventGateway.GetMessages(transactionID, 2)
 	for _, msg := range messages {
 		switch msg.Title {
 		case "SubscriberCreated":
@@ -57,5 +58,11 @@ func (sh *Handler) HandleRequest(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 	}
+	// TODO: Add handling of emit error
+	_ = h.eventGateway.Emit(
+		"SubscriberCreatedTimeout",
+		map[string]interface{}{"email": requestData.Email},
+		&transactionID,
+	)
 	return c.SendStatus(fiber.StatusInternalServerError)
 }

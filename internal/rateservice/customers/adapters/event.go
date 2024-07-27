@@ -1,8 +1,9 @@
 package adapters
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"log"
 	"time"
 )
@@ -16,11 +17,12 @@ type Message struct {
 }
 
 type NatsEventEmitter struct {
-	conn nats.JetStreamContext
+	ctx  context.Context
+	conn jetstream.JetStream
 }
 
-func NewNatsEventEmitter(conn nats.JetStreamContext) NatsEventEmitter {
-	return NatsEventEmitter{conn: conn}
+func NewNatsEventEmitter(ctx context.Context, conn jetstream.JetStream) NatsEventEmitter {
+	return NatsEventEmitter{ctx: ctx, conn: conn}
 }
 
 func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transactionID *string) error {
@@ -35,30 +37,39 @@ func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transac
 		subject = "events." + *transactionID
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
 	log.Printf("Emitting event: %s to %s\n", name, subject)
-	_, err = e.conn.Publish(subject, serializedData)
+	_, err = e.conn.Publish(ctx, subject, serializedData)
 	return err
 }
 
 func (e NatsEventEmitter) GetMessages(transactionID string, batchSize int) []Message {
 	subject := "events." + transactionID
-	sub, err := e.conn.PullSubscribe(subject, "")
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	msgs, err := sub.Fetch(batchSize, nats.MaxWait(5*time.Second))
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	cons, _ := e.conn.CreateOrUpdateConsumer(ctx, "events", jetstream.ConsumerConfig{
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		FilterSubject: subject,
+	})
+
+	fetchOpt := jetstream.FetchMaxWait(2 * time.Second)
+	msgBatch, err := cons.Fetch(batchSize, fetchOpt)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	var messages []Message
-	for _, msg := range msgs {
+	for msg := range msgBatch.Messages() {
 		var message Message
-		err = json.Unmarshal(msg.Data, &message)
+		err = json.Unmarshal(msg.Data(), &message)
 		if err == nil {
 			messages = append(messages, message)
 		}
 	}
+
 	return messages
 }

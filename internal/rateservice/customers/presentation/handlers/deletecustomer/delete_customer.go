@@ -10,6 +10,7 @@ import (
 
 type EventGateway interface {
 	GetMessages(transactionID string, batchSize int) []adapters.Message
+	Emit(name string, data map[string]interface{}, transactionID *string) error
 }
 
 type Handler struct {
@@ -49,6 +50,11 @@ func (h *Handler) HandleRequest(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 	}
-
+	// TODO: Add handling of emit error
+	_ = h.eventGateway.Emit(
+		"SubscriberDeletedTimeout",
+		map[string]interface{}{"email": requestData.Email},
+		&transactionID,
+	)
 	return c.SendStatus(fiber.StatusInternalServerError)
 }
