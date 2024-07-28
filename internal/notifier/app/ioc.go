@@ -3,7 +3,10 @@ package app
 import (
 	"context"
 	"github.com/nats-io/nats.go/jetstream"
-	"go_service/internal/notifier/adapters"
+	"go_service/internal/notifier/adapters/currencyrate"
+	"go_service/internal/notifier/adapters/email"
+	"go_service/internal/notifier/adapters/event"
+	"go_service/internal/notifier/adapters/subscriber"
 	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/services/createsubscriber"
 	"go_service/internal/notifier/services/deletesubscriber"
@@ -12,10 +15,10 @@ import (
 )
 
 type IoC struct {
-	emailAdapter        adapters.EmailAdapter
-	currencyRateAdapter adapters.CurrencyRateAdapter
-	subscriberAdapter   adapters.SubscriberAdapter
-	eventEmitter        adapters.NatsEventEmitter
+	emailAdapter        email.Adapter
+	currencyRateAdapter currencyrate.Adapter
+	subscriberAdapter   subscriber.Adapter
+	eventEmitter        event.NatsEventEmitter
 }
 
 func NewIoC(
@@ -26,10 +29,10 @@ func NewIoC(
 	conn jetstream.JetStream,
 ) *IoC {
 	return &IoC{
-		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyServiceSettings),
-		subscriberAdapter:   adapters.NewSubscriberAdapter(db),
-		emailAdapter:        adapters.NewEmailAdapter(emailSettings),
-		eventEmitter:        adapters.NewNatsEventEmitter(ctx, conn),
+		currencyRateAdapter: currencyrate.NewCurrencyRateAdapter(currencyServiceSettings),
+		subscriberAdapter:   subscriber.NewSubscriberAdapter(db),
+		emailAdapter:        email.NewEmailAdapter(emailSettings),
+		eventEmitter:        event.NewNatsEventEmitter(ctx, conn),
 	}
 }
 

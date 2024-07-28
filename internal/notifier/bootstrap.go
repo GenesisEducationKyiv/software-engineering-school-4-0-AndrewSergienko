@@ -3,7 +3,7 @@ package notifier
 import (
 	"context"
 	"github.com/nats-io/nats.go/jetstream"
-	"go_service/internal/notifier/adapters"
+	"go_service/internal/notifier/adapters/scheduler"
 	"go_service/internal/notifier/app"
 	"go_service/internal/notifier/infrastructure"
 	"gorm.io/gorm"
@@ -16,7 +16,7 @@ func NewTask(
 	emailSettings infrastructure.EmailSettings,
 	conn jetstream.JetStream,
 ) app.RateNotifier {
-	schedulerGateway := adapters.NewScheduleAdapter()
+	schedulerGateway := scheduler.NewScheduleAdapter()
 	container := app.NewIoC(ctx, db, currencyServiceSettings, emailSettings, conn)
 
 	return app.NewRateNotifier(container, schedulerGateway)

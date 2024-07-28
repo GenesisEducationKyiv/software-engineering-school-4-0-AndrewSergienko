@@ -1,4 +1,4 @@
-package adapters
+package email
 
 import (
 	"fmt"
@@ -6,21 +6,21 @@ import (
 	"net/smtp"
 )
 
-type EmailAdapter struct {
+type Adapter struct {
 	username string
 	host     string
 	auth     smtp.Auth
 }
 
-func NewEmailAdapter(settings infrastructure.EmailSettings) EmailAdapter {
-	return EmailAdapter{
+func NewEmailAdapter(settings infrastructure.EmailSettings) Adapter {
+	return Adapter{
 		username: settings.Email,
 		host:     settings.Host,
 		auth:     smtp.PlainAuth("", settings.Email, settings.Password, settings.Host),
 	}
 }
 
-func (ea EmailAdapter) Send(target string, rate float32) error {
+func (ea Adapter) Send(target string, rate float32) error {
 
 	to := []string{target}
 	subject := "Subject: USD rate\r\n"

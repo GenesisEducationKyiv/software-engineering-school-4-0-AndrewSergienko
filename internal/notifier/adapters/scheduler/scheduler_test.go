@@ -1,4 +1,4 @@
-package adapters
+package scheduler
 
 import (
 	"github.com/stretchr/testify/suite"

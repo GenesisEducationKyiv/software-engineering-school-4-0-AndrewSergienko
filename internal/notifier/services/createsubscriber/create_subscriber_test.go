@@ -1,16 +1,22 @@
 package createsubscriber
 
 import (
+	"errors"
 	"github.com/stretchr/testify/suite"
 	"go_service/internal/notifier/infrastructure/database/models"
 	"testing"
 )
 
 type SubscriberGatewayMock struct {
+	RaiseError bool
 	Subscriber *models.Subscriber
 }
 
 func (mock *SubscriberGatewayMock) Create(email string) error {
+	if mock.RaiseError {
+		return errors.New("mock error")
+	}
+
 	mock.Subscriber = &models.Subscriber{Email: email}
 	return nil
 }
@@ -23,11 +29,11 @@ func (mock *SubscriberGatewayMock) GetByEmail(email string) *models.Subscriber {
 }
 
 type EventEmitterMock struct {
-	EmitCalled bool
+	EmittedEvent string
 }
 
-func (e EventEmitterMock) Emit(_ string, _ map[string]interface{}, _ *string) error {
-	e.EmitCalled = true // nolint: all
+func (e *EventEmitterMock) Emit(event string, _ map[string]interface{}, _ *string) error {
+	e.EmittedEvent = event
 	return nil
 }
 
@@ -39,15 +45,27 @@ type CreateSubscriberTestSuite struct {
 
 func (suite *CreateSubscriberTestSuite) SetupSuite() {
 	suite.subscriberGateway = &SubscriberGatewayMock{}
-	suite.eventEmitter = &EventEmitterMock{EmitCalled: false}
+	suite.eventEmitter = &EventEmitterMock{}
 }
 
-func (suite *CreateSubscriberTestSuite) TestHandle() {
+func (suite *CreateSubscriberTestSuite) TestHandle_Success() {
+	suite.subscriberGateway.(*SubscriberGatewayMock).RaiseError = false
+
 	service := New(suite.subscriberGateway, suite.eventEmitter)
 	data := InputData{Email: "test@gmail.com"}
 	suite.NoError(service.Handle(data).Err)
 	suite.NotNil(suite.subscriberGateway.GetByEmail(data.Email))
-	suite.True(suite.eventEmitter.(*EventEmitterMock).EmitCalled)
+	suite.Equal("SubscriberCreated", suite.eventEmitter.(*EventEmitterMock).EmittedEvent)
+}
+
+func (suite *CreateSubscriberTestSuite) TestHandle_Error() {
+	suite.subscriberGateway.(*SubscriberGatewayMock).RaiseError = true
+
+	service := New(suite.subscriberGateway, suite.eventEmitter)
+	data := InputData{Email: "test@gmail.com"}
+	suite.NoError(service.Handle(data).Err)
+	suite.Nil(suite.subscriberGateway.GetByEmail(data.Email))
+	suite.Equal("SubscriberCreatedError", suite.eventEmitter.(*EventEmitterMock).EmittedEvent)
 }
 
 func TestCreateSubscriberSuite(t *testing.T) {

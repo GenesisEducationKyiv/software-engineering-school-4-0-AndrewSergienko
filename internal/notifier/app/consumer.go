@@ -63,7 +63,7 @@ func newMessageHandler(container InteractorFactory) func(msg jetstream.Msg) {
 		case "UserCreated":
 			interactor := container.CreateSubscriber()
 			inputData := createsubscriber.InputData{
-				Email:         event.Data["Email"].(string),
+				Email:         event.Data["email"].(string),
 				TransactionID: event.TransactionID,
 			}
 			interactor.Handle(inputData)
@@ -71,7 +71,7 @@ func newMessageHandler(container InteractorFactory) func(msg jetstream.Msg) {
 		case "UserDeleted":
 			interactor := container.DeleteSubscriber()
 			inputData := deletesubscriber.InputData{
-				Email:         event.Data["Email"].(string),
+				Email:         event.Data["email"].(string),
 				TransactionID: event.TransactionID,
 			}
 			interactor.Handle(inputData)

@@ -1,9 +1,9 @@
 package models
 
-type Subscriber struct {
+type Customer struct {
 	Email string `gorm:"unique"`
 }
 
-func (Subscriber) TableName() string {
+func (Customer) TableName() string {
 	return "subscribers"
 }

@@ -1,4 +1,4 @@
-package adapters
+package email
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 
 type EmailAdapterTestSuite struct {
 	suite.Suite
-	adapter EmailAdapter
+	adapter Adapter
 }
 
 func (suite *EmailAdapterTestSuite) SetupSuite() {

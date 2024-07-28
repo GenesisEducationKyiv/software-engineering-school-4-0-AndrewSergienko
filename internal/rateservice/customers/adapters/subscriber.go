@@ -13,8 +13,8 @@ func NewSubscriberAdapter(db *gorm.DB) *SubscriberAdapter {
 	return &SubscriberAdapter{db: db}
 }
 
-func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
-	var subscribers []models.Subscriber
+func (sa *SubscriberAdapter) GetByEmail(email string) *models.Customer {
+	var subscribers []models.Customer
 	sa.db.Find(&subscribers, "email = ?", email)
 	if len(subscribers) == 0 {
 		return nil
@@ -23,16 +23,11 @@ func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
 }
 
 func (sa *SubscriberAdapter) Create(email string) error {
-	subscriber := models.Subscriber{Email: email}
-	return sa.db.Create(&subscriber).Error
+	subscriber := models.Customer{Email: email}
+	err := sa.db.Create(&subscriber).Error
+	return err
 }
 
 func (sa *SubscriberAdapter) DeleteByEmail(email string) error {
-	return sa.db.Where("email = ?", email).Delete(&models.Subscriber{}).Error
-}
-
-func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
-	var subscribers []models.Subscriber
-	sa.db.Find(&subscribers)
-	return subscribers
+	return sa.db.Where("email = ?", email).Delete(&models.Customer{}).Error
 }

@@ -7,8 +7,15 @@ import (
 )
 
 func New() (*nats.Conn, jetstream.JetStream) {
-	conn, _ := nats.Connect("nats://localhost:4222")
-	js, _ := jetstream.New(conn)
+	conn, err := nats.Connect("nats://localhost:4222")
+	if err != nil {
+		return nil, nil
+	}
+
+	js, err := jetstream.New(conn)
+	if err != nil {
+		return nil, nil
+	}
 	return conn, js
 }
 
@@ -19,6 +26,6 @@ func Finalize(conn *nats.Conn) {
 func NewStream(ctx context.Context, js jetstream.JetStream, name string) (jetstream.Stream, error) {
 	return js.CreateStream(ctx, jetstream.StreamConfig{
 		Name:     name,
-		Subjects: []string{name + ".*"},
+		Subjects: []string{name, name + ".*"},
 	})
 }

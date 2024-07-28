@@ -15,9 +15,9 @@ type OutputData struct {
 	Err error
 }
 
-type SubscriberGateway interface {
+type CustomerGateway interface {
 	Create(email string) error
-	GetByEmail(email string) *models.Subscriber
+	GetByEmail(email string) *models.Customer
 }
 
 type EventEmitter interface {
@@ -25,11 +25,11 @@ type EventEmitter interface {
 }
 
 type CreateCustomer struct {
-	subscriberGateway SubscriberGateway
+	subscriberGateway CustomerGateway
 	eventEmitter      EventEmitter
 }
 
-func New(sg SubscriberGateway, em EventEmitter) *CreateCustomer {
+func New(sg CustomerGateway, em EventEmitter) *CreateCustomer {
 	return &CreateCustomer{subscriberGateway: sg, eventEmitter: em}
 }
 
@@ -49,7 +49,7 @@ func (s *CreateCustomer) Handle(data InputData) OutputData {
 	} else if !data.IsRollback {
 		event = "UserCreatedError"
 	}
-	_ = s.eventEmitter.Emit(event, map[string]interface{}{"Email": data.Email}, data.TransactionID)
+	_ = s.eventEmitter.Emit(event, map[string]interface{}{"email": data.Email}, data.TransactionID)
 	// TODO: Add transactional outbox pattern
 
 	return OutputData{err}

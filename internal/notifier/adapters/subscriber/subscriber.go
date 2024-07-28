@@ -1,25 +1,25 @@
-package adapters
+package subscriber
 
 import (
 	"go_service/internal/notifier/infrastructure/database/models"
 	"gorm.io/gorm"
 )
 
-type SubscriberAdapter struct {
+type Adapter struct {
 	db *gorm.DB
 }
 
-func NewSubscriberAdapter(db *gorm.DB) SubscriberAdapter {
-	return SubscriberAdapter{db: db}
+func NewSubscriberAdapter(db *gorm.DB) Adapter {
+	return Adapter{db: db}
 }
 
-func (sa *SubscriberAdapter) GetAll() []models.Subscriber {
+func (sa *Adapter) GetAll() []models.Subscriber {
 	var subscribers []models.Subscriber
 	sa.db.Find(&subscribers)
 	return subscribers
 }
 
-func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
+func (sa *Adapter) GetByEmail(email string) *models.Subscriber {
 	var subscribers []models.Subscriber
 	sa.db.Find(&subscribers, "email = ?", email)
 	if len(subscribers) == 0 {
@@ -28,11 +28,11 @@ func (sa *SubscriberAdapter) GetByEmail(email string) *models.Subscriber {
 	return &subscribers[0]
 }
 
-func (sa *SubscriberAdapter) Create(email string) error {
+func (sa *Adapter) Create(email string) error {
 	subscriber := models.Subscriber{Email: email}
 	return sa.db.Create(&subscriber).Error
 }
 
-func (sa *SubscriberAdapter) Delete(email string) error {
+func (sa *Adapter) Delete(email string) error {
 	return sa.db.Where("email = ?", email).Delete(&models.Subscriber{}).Error
 }
