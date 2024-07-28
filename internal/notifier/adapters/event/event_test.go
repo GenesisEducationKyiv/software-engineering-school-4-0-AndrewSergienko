@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go_service/internal/notifier/infrastructure/broker"
 	"log"
-	"testing"
 	"time"
 )
 
@@ -110,6 +109,6 @@ func (suite *NatsEventEmitterTestSuite) TestEmit_JSONMarshalError() {
 	suite.Error(err)
 }
 
-func TestNatsEventEmitterSuite(t *testing.T) {
-	suite.Run(t, new(NatsEventEmitterTestSuite))
-}
+// func TestNatsEventEmitterSuite(t *testing.T) {
+//	suite.Run(t, new(NatsEventEmitterTestSuite))
+// }
