@@ -1,4 +1,4 @@
-package adapters
+package event
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func NewNatsEventEmitter(ctx context.Context, conn jetstream.JetStream) NatsEven
 }
 
 func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transactionID *string) error {
-	message := Message{Title: name, Type: "event", From: "customers", Data: data, TransactionID: transactionID}
+	message := Message{Title: name, Type: "event", From: "notifier", Data: data, TransactionID: transactionID}
 	serializedData, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -41,35 +41,7 @@ func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transac
 	defer cancel()
 
 	log.Printf("Emitting event: %s to %s\n", name, subject)
+
 	_, err = e.conn.Publish(ctx, subject, serializedData)
 	return err
-}
-
-func (e NatsEventEmitter) GetMessages(transactionID string, batchSize int) []Message {
-	subject := "events." + transactionID
-
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	cons, _ := e.conn.CreateOrUpdateConsumer(ctx, "events", jetstream.ConsumerConfig{
-		AckPolicy:     jetstream.AckExplicitPolicy,
-		FilterSubject: subject,
-	})
-
-	fetchOpt := jetstream.FetchMaxWait(2 * time.Second)
-	msgBatch, err := cons.Fetch(batchSize, fetchOpt)
-	if err != nil {
-		log.Println(err)
-	}
-
-	var messages []Message
-	for msg := range msgBatch.Messages() {
-		var message Message
-		err = json.Unmarshal(msg.Data(), &message)
-		if err == nil {
-			messages = append(messages, message)
-		}
-	}
-
-	return messages
 }

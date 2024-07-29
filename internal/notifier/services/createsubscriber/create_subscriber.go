@@ -6,7 +6,8 @@ import (
 )
 
 type InputData struct {
-	Email string
+	Email         string
+	TransactionID *string
 }
 
 type OutputData struct {
@@ -18,12 +19,17 @@ type SubscriberGateway interface {
 	GetByEmail(email string) *models.Subscriber
 }
 
-type CreateSubscriber struct {
-	subscriberGateway SubscriberGateway
+type EventEmitter interface {
+	Emit(name string, data map[string]interface{}, transactionID *string) error
 }
 
-func New(sg SubscriberGateway) *CreateSubscriber {
-	return &CreateSubscriber{subscriberGateway: sg}
+type CreateSubscriber struct {
+	subscriberGateway SubscriberGateway
+	eventEmitter      EventEmitter
+}
+
+func New(sg SubscriberGateway, em EventEmitter) *CreateSubscriber {
+	return &CreateSubscriber{subscriberGateway: sg, eventEmitter: em}
 }
 
 func (s *CreateSubscriber) Handle(data InputData) OutputData {
@@ -31,5 +37,18 @@ func (s *CreateSubscriber) Handle(data InputData) OutputData {
 		return OutputData{Err: &domain.EmailConflictError{Email: data.Email}}
 	}
 
-	return OutputData{s.subscriberGateway.Create(data.Email)}
+	err := s.subscriberGateway.Create(data.Email)
+	var event string
+	if err == nil {
+		event = "SubscriberCreated"
+	} else {
+		event = "SubscriberCreatedError"
+	}
+	_ = s.eventEmitter.Emit(
+		event,
+		map[string]interface{}{"email": data.Email},
+		data.TransactionID,
+	)
+	// TODO: Add transactional outbox pattern
+	return OutputData{}
 }

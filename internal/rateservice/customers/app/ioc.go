@@ -1,12 +1,12 @@
 package app
 
 import (
-	"github.com/nats-io/nats.go"
+	"context"
+	"github.com/nats-io/nats.go/jetstream"
 	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/customers/presentation"
-	"go_service/internal/rateservice/customers/services/getall"
-	"go_service/internal/rateservice/customers/services/subscribe"
-	"go_service/internal/rateservice/customers/services/unsubscribe"
+	"go_service/internal/rateservice/customers/services/createcustomer"
+	"go_service/internal/rateservice/customers/services/deletecustomer"
 	"gorm.io/gorm"
 )
 
@@ -15,30 +15,23 @@ type IoC struct {
 	natsEventAdapter  adapters.NatsEventEmitter
 }
 
-func NewIoC(db *gorm.DB, nc *nats.Conn) *IoC {
+func NewIoC(ctx context.Context, db *gorm.DB, conn jetstream.JetStream) *IoC {
 	return &IoC{
 		subscriberAdapter: adapters.NewSubscriberAdapter(db),
-		natsEventAdapter:  adapters.NewNatsEventEmitter(nc),
+		natsEventAdapter:  adapters.NewNatsEventEmitter(ctx, conn),
 	}
 }
 
-func (ioc *IoC) Subscribe() presentation.Interactor[
-	subscribe.InputDTO,
-	subscribe.OutputDTO,
+func (ioc *IoC) CreateCustomer() presentation.Interactor[
+	createcustomer.InputData,
+	createcustomer.OutputData,
 ] {
-	return subscribe.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
+	return createcustomer.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
 }
 
-func (ioc *IoC) Unsubscribe() presentation.Interactor[
-	unsubscribe.InputDTO,
-	unsubscribe.OutputDTO,
+func (ioc *IoC) DeleteCustomer() presentation.Interactor[
+	deletecustomer.InputData,
+	deletecustomer.OutputData,
 ] {
-	return unsubscribe.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
-}
-
-func (ioc *IoC) GetAll() presentation.Interactor[
-	getall.InputDTO,
-	getall.OutputDTO,
-] {
-	return getall.New(ioc.subscriberAdapter)
+	return deletecustomer.New(ioc.subscriberAdapter, ioc.natsEventAdapter)
 }

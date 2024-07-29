@@ -1,19 +1,25 @@
 package app
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
-	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"go_service/internal/rateservice/currencyrate"
-	"go_service/internal/rateservice/currencyrate/infrastructure"
 	"go_service/internal/rateservice/customers"
+	"go_service/internal/rateservice/infrastructure"
 
 	"gorm.io/gorm"
 )
 
-func InitWebApp(db *gorm.DB, nc *nats.Conn, apiSettings infrastructure.CurrencyAPISettings) *fiber.App {
+func InitWebApp(
+	ctx context.Context,
+	db *gorm.DB,
+	conn jetstream.JetStream,
+	apiSettings infrastructure.CurrencyAPISettings,
+) *fiber.App {
 	app := fiber.New()
 
-	subscribersApp := customers.NewApp(db, nc)
+	subscribersApp := customers.NewApp(ctx, db, conn)
 	currencyRateApp := currencyrate.NewApp(apiSettings)
 
 	app.Mount("/customers/", subscribersApp)

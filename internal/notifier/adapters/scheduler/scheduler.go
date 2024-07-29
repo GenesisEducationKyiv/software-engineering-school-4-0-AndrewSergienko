@@ -1,4 +1,4 @@
-package adapters
+package scheduler
 
 import (
 	"encoding/json"

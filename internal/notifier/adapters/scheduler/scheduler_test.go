@@ -1,4 +1,4 @@
-package adapters
+package scheduler
 
 import (
 	"github.com/stretchr/testify/suite"
@@ -29,7 +29,7 @@ func (suite *SchedulerAdapterTestSuite) SetupTest() {
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {
 	suite.transaction.Rollback()
-	os.Remove("conf/email_sent_time.json")
+	_ = os.Remove("conf/email_sent_time.json")
 }
 
 func (suite *SchedulerAdapterTestSuite) TestGetLastTimeExisted() {

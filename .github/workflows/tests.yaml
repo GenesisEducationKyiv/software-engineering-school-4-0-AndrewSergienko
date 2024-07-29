@@ -36,7 +36,8 @@ jobs:
 
       nats:
         image: nats:latest
-        ports: ['4222:4222']
+        ports:
+          - 4222:4222
 
       mailhog:
         image: mailhog/mailhog

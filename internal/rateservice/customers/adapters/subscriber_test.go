@@ -32,7 +32,7 @@ func (suite *SubscriberAdapterTestSuite) TearDownTest() {
 
 func (suite *SubscriberAdapterTestSuite) TestGetByEmail() {
 	email := "test@gmail.com"
-	suite.transaction.Create(&models.Subscriber{Email: email})
+	suite.transaction.Create(&models.Customer{Email: email})
 
 	subscriber := suite.adapter.GetByEmail(email)
 
@@ -52,25 +52,10 @@ func (suite *SubscriberAdapterTestSuite) TestCreate() {
 
 func (suite *SubscriberAdapterTestSuite) TestCreateDuplicate() {
 	email := "test@gmail.com"
-	suite.transaction.Create(&models.Subscriber{Email: email})
+	suite.transaction.Create(&models.Customer{Email: email})
 
 	err := suite.adapter.Create(email)
 	suite.NotNil(err)
-}
-
-func (suite *SubscriberAdapterTestSuite) TestGetAll() {
-	emails := []string{"test1@gmail.com", "test2@gmail.com", "test3@gmail.com"}
-	for _, email := range emails {
-		suite.transaction.Create(&models.Subscriber{Email: email})
-	}
-
-	subscribers := suite.adapter.GetAll()
-
-	suite.Equal(len(emails), len(subscribers))
-
-	for i := 0; i < len(emails); i++ {
-		suite.Equal(emails[i], subscribers[i].Email)
-	}
 }
 
 func TestSubscriberAdapterSuite(t *testing.T) {

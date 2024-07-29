@@ -2,20 +2,20 @@ package app
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/customers/presentation"
-	"go_service/internal/rateservice/customers/presentation/handlers"
+	"go_service/internal/rateservice/customers/presentation/handlers/createcustomer"
+	"go_service/internal/rateservice/customers/presentation/handlers/deletecustomer"
 )
 
-func NewWebApp(container presentation.InteractorFactory) *fiber.App {
+func NewWebApp(container presentation.InteractorFactory, eventGateway adapters.NatsEventEmitter) *fiber.App {
 	app := fiber.New()
 
-	subscribeHandler := handlers.NewSubscriberHandler(container)
-	unsubscribeHandler := handlers.NewUnsubscriberHandler(container)
-	getAllHandler := handlers.NewGetAllHandler(container)
+	subscribeHandler := createcustomer.New(container, eventGateway)
+	unsubscribeHandler := deletecustomer.New(container, eventGateway)
 
 	app.Post("/", subscribeHandler.HandleRequest)
 	app.Delete("/", unsubscribeHandler.HandleRequest)
-	app.Get("/", getAllHandler.HandleRequest)
 
 	return app
 }
