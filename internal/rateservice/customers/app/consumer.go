@@ -3,12 +3,13 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go/jetstream"
 	"go_service/internal/rateservice/customers/presentation"
 	"go_service/internal/rateservice/customers/services/createcustomer"
 	"go_service/internal/rateservice/customers/services/deletecustomer"
-	"go_service/internal/rateservice/infrastructure/broker"
-	"log"
+	"log/slog"
+	"time"
 )
 
 type Message struct {
@@ -29,10 +30,11 @@ func NewConsumer(ctx context.Context, js jetstream.JetStream, container *IoC) Co
 	return Consumer{ctx: ctx, js: js, container: container}
 }
 
-func (c Consumer) Run() jetstream.ConsumeContext {
-	_, _ = broker.NewStream(c.ctx, c.js, "events")
+func (c Consumer) Run() (jetstream.ConsumeContext, error) {
+	ctx, cancel := context.WithTimeout(c.ctx, 5*time.Second)
+	defer cancel()
 
-	cons, _ := c.js.CreateOrUpdateConsumer(c.ctx, "events", jetstream.ConsumerConfig{
+	cons, _ := c.js.CreateOrUpdateConsumer(ctx, "events", jetstream.ConsumerConfig{
 		Durable:       "customers_consumer",
 		AckPolicy:     jetstream.AckExplicitPolicy,
 		FilterSubject: "events.*",
@@ -40,10 +42,10 @@ func (c Consumer) Run() jetstream.ConsumeContext {
 
 	consContext, err := cons.Consume(newMessageHandler(c.container))
 	if err != nil {
-		return consContext
+		return consContext, err
 	}
-	log.Printf("Consumer started")
-	return consContext
+	slog.Info("Consumer started")
+	return consContext, err
 }
 
 func newMessageHandler(container presentation.InteractorFactory) func(msg jetstream.Msg) {
@@ -51,14 +53,14 @@ func newMessageHandler(container presentation.InteractorFactory) func(msg jetstr
 		var event Message
 		err := json.Unmarshal(msg.Data(), &event)
 		if err != nil {
-			log.Printf("Error unmarshalling message: %v", err)
+			slog.Warn(fmt.Sprintf("Error unmarshalling message: %v", err), slog.String("subject", msg.Subject()))
 			_ = msg.Nak()
 			return
 		}
 
 		switch event.Title {
 		case "SubscriberCreatedError", "SubscriberCreatedTimeout":
-			log.Printf("Rollback transaction %s", *event.TransactionID)
+			slog.Info(fmt.Sprintf("Rollback transaction %s", *event.TransactionID))
 			interactor := container.DeleteCustomer()
 			inputData := deletecustomer.InputData{
 				Email:         event.Data["email"].(string),
@@ -68,7 +70,7 @@ func newMessageHandler(container presentation.InteractorFactory) func(msg jetstr
 			interactor.Handle(inputData)
 			_ = msg.Ack()
 		case "SubscriberDeletedError", "SubscriberDeletedTimeout":
-			log.Printf("Rollback transaction %s", *event.TransactionID)
+			slog.Info(fmt.Sprintf("Rollback transaction %s", *event.TransactionID))
 			interactor := container.CreateCustomer()
 			inputData := createcustomer.InputData{
 				Email:         event.Data["email"].(string),
@@ -77,10 +79,6 @@ func newMessageHandler(container presentation.InteractorFactory) func(msg jetstr
 			}
 			interactor.Handle(inputData)
 			_ = msg.Ack()
-		}
-
-		if err := msg.Ack(); err == nil {
-			log.Printf("Success acknowledging message: %v", err)
 		}
 	}
 }

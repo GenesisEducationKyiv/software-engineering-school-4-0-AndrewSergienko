@@ -2,12 +2,14 @@ package createcustomer
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/customers/presentation"
 	"go_service/internal/rateservice/customers/services"
 	"go_service/internal/rateservice/customers/services/createcustomer"
+	"log/slog"
 	"net/mail"
 )
 
@@ -31,6 +33,7 @@ func (h *Handler) HandleRequest(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&requestData); err != nil {
+		slog.Warn(fmt.Sprintf("Cannot parse JSON: %v", err))
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
 	}
 

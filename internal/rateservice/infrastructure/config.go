@@ -1,7 +1,8 @@
 package infrastructure
 
 import (
-	"log"
+	"fmt"
+	"log/slog"
 	"os"
 )
 
@@ -9,10 +10,12 @@ func fetchEnv(name string, strict bool) string { // nolint: all
 	value := os.Getenv(name)
 	if value == "" {
 		if strict {
-			log.Fatalf("Environment variable %s is not set", name)
+			slog.Error(fmt.Sprintf("Environment variable %s is not set", name))
+			os.Exit(1)
 		}
-		log.Printf("WARN: Environment variable %s is not set\n", name)
+		slog.Warn(fmt.Sprintf("Environment variable %s is not set", name))
 	}
+	slog.Debug(fmt.Sprintf("Environment variable - %s: %s", name, value))
 	return value
 }
 

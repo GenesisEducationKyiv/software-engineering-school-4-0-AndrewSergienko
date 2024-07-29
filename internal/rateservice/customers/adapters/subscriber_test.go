@@ -18,7 +18,9 @@ type SubscriberAdapterTestSuite struct {
 
 func (suite *SubscriberAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
-	suite.db = database.New(settings)
+	db, err := database.New(settings)
+	suite.NoError(err)
+	suite.db = db
 }
 
 func (suite *SubscriberAdapterTestSuite) SetupTest() {

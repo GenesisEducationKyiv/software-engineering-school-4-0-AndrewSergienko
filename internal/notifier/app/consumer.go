@@ -3,11 +3,13 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go/jetstream"
 	"go_service/internal/notifier/infrastructure/broker"
 	"go_service/internal/notifier/services/createsubscriber"
 	"go_service/internal/notifier/services/deletesubscriber"
 	"log"
+	"log/slog"
 	"time"
 )
 
@@ -30,7 +32,7 @@ func NewConsumer(ctx context.Context, conn jetstream.JetStream, container Intera
 }
 
 func (c Consumer) Run() (jetstream.ConsumeContext, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.ctx, 5*time.Second)
 	defer cancel()
 
 	_, _ = broker.NewStream(ctx, c.conn, "events")
@@ -42,9 +44,11 @@ func (c Consumer) Run() (jetstream.ConsumeContext, error) {
 	})
 
 	consContext, err := cons.Consume(newMessageHandler(c.container))
-	if err == nil {
-		log.Printf("Consumer started")
+	if err != nil {
+		slog.Error(fmt.Sprintf("Error starting consumer: %v", err))
+		return consContext, err
 	}
+	slog.Info("Consumer started")
 	return consContext, err
 }
 
