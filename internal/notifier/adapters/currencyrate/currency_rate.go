@@ -1,4 +1,4 @@
-package adapters
+package currencyrate
 
 import (
 	"encoding/json"
@@ -6,21 +6,21 @@ import (
 	"go_service/internal/notifier/infrastructure"
 )
 
-type CurrencyRateResponse struct {
+type Response struct {
 	Rate float32 `json:"rate"`
 }
 
-type CurrencyRateAdapter struct {
+type Adapter struct {
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings
 }
 
 func NewCurrencyRateAdapter(
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
-) CurrencyRateAdapter {
-	return CurrencyRateAdapter{currencyServiceSettings}
+) Adapter {
+	return Adapter{currencyServiceSettings}
 }
 
-func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (float32, error) {
+func (adapter Adapter) GetCurrencyRate(from string, to string) (float32, error) {
 	url := fmt.Sprintf(
 		"%s%s?from=%s&to=%s",
 		adapter.currencyServiceSettings.Host,
@@ -34,7 +34,7 @@ func (adapter CurrencyRateAdapter) GetCurrencyRate(from string, to string) (floa
 		return 0, err
 	}
 
-	var response CurrencyRateResponse
+	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return 0, err

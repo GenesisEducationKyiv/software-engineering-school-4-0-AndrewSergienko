@@ -1,7 +1,12 @@
 package app
 
 import (
-	"go_service/internal/notifier/adapters"
+	"context"
+	"github.com/nats-io/nats.go/jetstream"
+	"go_service/internal/notifier/adapters/currencyrate"
+	"go_service/internal/notifier/adapters/email"
+	"go_service/internal/notifier/adapters/event"
+	"go_service/internal/notifier/adapters/subscriber"
 	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/services/createsubscriber"
 	"go_service/internal/notifier/services/deletesubscriber"
@@ -10,20 +15,24 @@ import (
 )
 
 type IoC struct {
-	emailAdapter        adapters.EmailAdapter
-	currencyRateAdapter adapters.CurrencyRateAdapter
-	subscriberAdapter   adapters.SubscriberAdapter
+	emailAdapter        email.Adapter
+	currencyRateAdapter currencyrate.Adapter
+	subscriberAdapter   subscriber.Adapter
+	eventEmitter        event.NatsEventEmitter
 }
 
 func NewIoC(
+	ctx context.Context,
 	db *gorm.DB,
 	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
+	conn jetstream.JetStream,
 ) *IoC {
 	return &IoC{
-		currencyRateAdapter: adapters.NewCurrencyRateAdapter(currencyServiceSettings),
-		subscriberAdapter:   adapters.NewSubscriberAdapter(db),
-		emailAdapter:        adapters.NewEmailAdapter(emailSettings),
+		currencyRateAdapter: currencyrate.NewCurrencyRateAdapter(currencyServiceSettings),
+		subscriberAdapter:   subscriber.NewSubscriberAdapter(db),
+		emailAdapter:        email.NewEmailAdapter(emailSettings),
+		eventEmitter:        event.NewNatsEventEmitter(ctx, conn),
 	}
 }
 
@@ -32,9 +41,9 @@ func (ioc *IoC) SendNotification() Interactor[sendnotification.InputData, sendno
 }
 
 func (ioc *IoC) CreateSubscriber() Interactor[createsubscriber.InputData, createsubscriber.OutputData] {
-	return createsubscriber.New(&ioc.subscriberAdapter)
+	return createsubscriber.New(&ioc.subscriberAdapter, &ioc.eventEmitter)
 }
 
 func (ioc *IoC) DeleteSubscriber() Interactor[deletesubscriber.InputData, deletesubscriber.OutputData] {
-	return deletesubscriber.New(&ioc.subscriberAdapter)
+	return deletesubscriber.New(&ioc.subscriberAdapter, &ioc.eventEmitter)
 }

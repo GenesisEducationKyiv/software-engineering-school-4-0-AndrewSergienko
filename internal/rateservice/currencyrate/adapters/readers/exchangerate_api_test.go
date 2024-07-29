@@ -2,7 +2,7 @@ package readers
 
 import (
 	"github.com/stretchr/testify/suite"
-	"go_service/internal/rateservice/currencyrate/infrastructure"
+	"go_service/internal/rateservice/infrastructure"
 	"testing"
 )
 

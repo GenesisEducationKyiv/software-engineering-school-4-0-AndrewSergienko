@@ -25,7 +25,7 @@ func NewRateNotifier(
 	return RateNotifier{container: container, schedulerGateway: schedulerGateway, cronObj: cron.New()}
 }
 
-func (rn RateNotifier) Run() {
+func (rn RateNotifier) Run() *cron.Cron {
 	interactor := rn.container.SendNotification()
 
 	handler := func() {
@@ -53,8 +53,10 @@ func (rn RateNotifier) Run() {
 	// Setup cron notifier job
 	_, err := rn.cronObj.AddFunc("0 9 * * *", handler)
 	if err != nil {
-		return
+		return nil
 	}
 	rn.cronObj.Start()
 	log.Printf("CRON STARTED")
+
+	return rn.cronObj
 }

@@ -1,4 +1,4 @@
-package adapters
+package subscriber
 
 import (
 	"github.com/stretchr/testify/suite"
@@ -13,7 +13,7 @@ type SubscriberAdapterTestSuite struct {
 	suite.Suite
 	db          *gorm.DB
 	transaction *gorm.DB
-	adapter     SubscriberAdapter
+	adapter     Adapter
 }
 
 func (suite *SubscriberAdapterTestSuite) SetupSuite() {
