@@ -1,6 +1,7 @@
 services:
   rateservice:
     build: ..
+    container_name: rateservice
     ports:
       - "8080:8080"
     env_file:
@@ -16,12 +17,13 @@ services:
 
   rateservice-postgres:
     image: postgres
+    container_name: rateservice.database
     env_file:
       - ../conf/.env.rateservice
     ports:
-      - '5433:5432'
+      - '5431:5432'
     healthcheck:
-      test: pg_isready -d rateservice -U ${POSTGRES_USER}
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 3s
       retries: 5
     networks:
@@ -29,6 +31,7 @@ services:
 
   notifier:
     build: ..
+    container_name: notifier
     env_file:
       - ../conf/.env.notifier
     environment:
@@ -42,12 +45,13 @@ services:
 
   notifier-postgres:
     image: postgres
+    container_name: notifier.database
     env_file:
       - ../conf/.env.notifier
     ports:
-      - '5434:5432'
+      - '5435:5432'
     healthcheck:
-      test: pg_isready -d notifier -U ${POSTGRES_USER}
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 3s
       retries: 5
     networks:
@@ -59,6 +63,60 @@ services:
       - "--js"
     networks:
       - general-network
+
+  grafana:
+    image: grafana/grafana:9.5.2
+    container_name: grafana
+    restart: unless-stopped
+    expose:
+      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - general-network
+    volumes:
+      - grafana.data:/var/lib/grafana:rw
+      - ../conf/grafana/provisioning:/etc/grafana/provisioning:rw
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - VIRTUAL_HOST=grafana
+      - NETWORK_ACCESS=internal
+      - VIRTUAL_PORT=3000
+
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: loki
+    expose:
+      - "3100"
+    volumes:
+      - ../conf/loki.yaml:/etc/loki/config.yaml:ro
+      - loki.data:/tmp/:rw
+    command: -config.file=/etc/loki/config.yaml
+    restart: unless-stopped
+    networks:
+      - general-network
+
+  vector:
+    image: timberio/vector:0.29.1-alpine
+    container_name: vector
+    restart: unless-stopped
+    expose:
+      - "8383"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../conf/vector.toml:/etc/vector/vector.toml:ro
+    networks:
+      - general-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+volumes:
+  loki.data: {}
+  grafana.data: {}
 
 networks:
   # general network for all services
