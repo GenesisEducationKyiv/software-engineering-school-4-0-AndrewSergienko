@@ -1,0 +1,10 @@
+#!/usr/bin/env just --justfile
+set shell := ["sh", "-c"]
+set dotenv-path := "../../conf/.env.notifier"
+
+update:
+  go get -u
+  go mod tidy -v
+
+migrate:
+    goose -dir ../../internal/notifier/infrastructure/database/migrations postgres up

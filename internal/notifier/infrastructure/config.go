@@ -43,6 +43,10 @@ type DatabaseSettings struct {
 	Database string
 }
 
+type BrokerSettings struct {
+	URL string
+}
+
 func GetDatabaseSettings() DatabaseSettings {
 	return DatabaseSettings{
 		User:     fetchEnv("POSTGRES_USER", true),
@@ -68,5 +72,11 @@ func GetEmailSettings() EmailSettings {
 		Email:    fetchEnv("EMAIL", true),
 		Password: fetchEnv("EMAIL_PASSWORD", true),
 		Host:     fetchEnv("EMAIL_HOST", true),
+	}
+}
+
+func GetBrokerSettings() BrokerSettings {
+	return BrokerSettings{
+		URL: fetchEnv("BROKER_URL", true),
 	}
 }

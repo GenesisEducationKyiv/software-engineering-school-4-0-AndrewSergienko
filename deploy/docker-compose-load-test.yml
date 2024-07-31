@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ../conf/.env.main
+      - ../conf/.env.rateservice
     depends_on:
       - postgres
     command: bash -c "goose -dir internal/infrastructure/database/migrations postgres \"host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}\" up && /goapp"
@@ -51,7 +51,7 @@ services:
   postgres:
     image: postgres
     env_file:
-      - ../conf/.env.main
+      - ../conf/.env.rateservice
     ports:
       - '5432:5432'
     healthcheck:

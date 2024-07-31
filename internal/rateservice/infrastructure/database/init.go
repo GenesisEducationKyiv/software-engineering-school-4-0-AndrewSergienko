@@ -16,6 +16,5 @@ func New(settings infrastructure.DatabaseSettings) (*gorm.DB, error) {
 		settings.Database,
 		settings.Port,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	return db, err
+	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }

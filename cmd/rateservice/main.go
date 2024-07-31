@@ -18,6 +18,7 @@ func main() {
 	// app configuration
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 	databaseSettings := infrastructure.GetDatabaseSettings()
+	brokerSettings := infrastructure.GetBrokerSettings()
 
 	ctx := context.Background()
 
@@ -27,7 +28,7 @@ func main() {
 		return
 	}
 
-	conn, js, err := broker.New()
+	conn, js, err := broker.New(brokerSettings)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Message broker is not available. Error: %s", err))
 		return

@@ -4,11 +4,12 @@ import (
 	"context"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"go_service/internal/rateservice/infrastructure"
 	"log/slog"
 )
 
-func New() (*nats.Conn, jetstream.JetStream, error) {
-	conn, err := nats.Connect("nats://localhost:4222")
+func New(settings infrastructure.BrokerSettings) (*nats.Conn, jetstream.JetStream, error) {
+	conn, err := nats.Connect(settings.URL)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,7 +30,7 @@ func Finalize(conn *nats.Conn) {
 }
 
 func NewStream(ctx context.Context, js jetstream.JetStream, name string) (jetstream.Stream, error) {
-	stream, err := js.CreateStream(ctx, jetstream.StreamConfig{
+	stream, err := js.CreateOrUpdateStream(ctx, jetstream.StreamConfig{
 		Name:     name,
 		Subjects: []string{name, name + ".*"},
 	})

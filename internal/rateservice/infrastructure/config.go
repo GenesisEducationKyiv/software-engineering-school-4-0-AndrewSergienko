@@ -33,6 +33,10 @@ type CurrencyAPISettings struct {
 	ExchangerateAPIURL string
 }
 
+type BrokerSettings struct {
+	URL string
+}
+
 func GetCurrencyAPISettings() CurrencyAPISettings {
 	return CurrencyAPISettings{
 		CurrencyAPIURL:     fetchEnv("CURRENCY_API_URL", false),
@@ -48,5 +52,11 @@ func GetDatabaseSettings() DatabaseSettings {
 		Database: fetchEnv("POSTGRES_DB", true),
 		Host:     fetchEnv("DB_HOST", true),
 		Port:     fetchEnv("DB_PORT", true),
+	}
+}
+
+func GetBrokerSettings() BrokerSettings {
+	return BrokerSettings{
+		URL: fetchEnv("BROKER_URL", true),
 	}
 }
