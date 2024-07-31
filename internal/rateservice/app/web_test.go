@@ -44,7 +44,9 @@ type SubscribersPresentationSuite struct {
 
 func (suite *SubscribersPresentationSuite) SetupSuite() {
 	databaseSettings := infrastructure.GetDatabaseSettings()
-	suite.db = database.New(databaseSettings)
+	db, err := database.New(databaseSettings)
+	suite.NoError(err)
+	suite.db = db
 
 }
 
@@ -102,7 +104,8 @@ func (suite *SubscribersPresentationSuite) SetupTest() {
 
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
 
-	conn, js := broker.New()
+	conn, js, err := broker.New()
+	suite.NoError(err)
 
 	if conn == nil {
 		suite.T().Skip("NATS connection failed")
@@ -112,7 +115,10 @@ func (suite *SubscribersPresentationSuite) SetupTest() {
 
 	suite.eventGateway = adapters.NewNatsEventEmitter(ctx, suite.js)
 	suite.webApp = InitWebApp(ctx, suite.transaction, suite.js, currencyAPISettings)
-	suite.customersConsumer = customers.NewConsumer(ctx, suite.transaction, suite.js).Run()
+	customersConsumer, err := customers.NewConsumer(ctx, suite.transaction, suite.js).Run()
+
+	suite.NoError(err)
+	suite.customersConsumer = customersConsumer
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {

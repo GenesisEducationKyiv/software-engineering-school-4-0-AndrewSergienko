@@ -7,6 +7,7 @@ import (
 	"go_service/internal/rateservice/currencyrate"
 	"go_service/internal/rateservice/customers"
 	"go_service/internal/rateservice/infrastructure"
+	"log/slog"
 
 	"gorm.io/gorm"
 )
@@ -18,6 +19,7 @@ func InitWebApp(
 	apiSettings infrastructure.CurrencyAPISettings,
 ) *fiber.App {
 	app := fiber.New()
+	app.Use(slog.Default())
 
 	subscribersApp := customers.NewApp(ctx, db, conn)
 	currencyRateApp := currencyrate.NewApp(apiSettings)

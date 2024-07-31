@@ -5,10 +5,9 @@ import (
 	"go_service/internal/rateservice/infrastructure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
-func New(settings infrastructure.DatabaseSettings) *gorm.DB {
+func New(settings infrastructure.DatabaseSettings) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		settings.Host,
@@ -18,9 +17,5 @@ func New(settings infrastructure.DatabaseSettings) *gorm.DB {
 		settings.Port,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		log.Fatalf("Database is not available. Error: %s", err)
-	}
-	return db
+	return db, err
 }

@@ -5,7 +5,8 @@ import (
 	"go_service/internal/notifier/infrastructure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
+	"log/slog"
+	"os"
 )
 
 func New(settings infrastructure.DatabaseSettings) *gorm.DB {
@@ -20,7 +21,8 @@ func New(settings infrastructure.DatabaseSettings) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatalf("Database is not available. Error: %s", err)
+		slog.Error(fmt.Sprintf("Database is not available. Error: %s", err))
+		os.Exit(1)
 	}
 	return db
 }
