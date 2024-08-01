@@ -3,8 +3,10 @@ package adapters
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go/jetstream"
 	"log"
+	"log/slog"
 	"time"
 )
 
@@ -40,7 +42,7 @@ func (e NatsEventEmitter) Emit(name string, data map[string]interface{}, transac
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	log.Printf("Emitting event: %s to %s\n", name, subject)
+	slog.Info(fmt.Sprintf("Emitting event: %s to %s\n", name, subject))
 	_, err = e.conn.Publish(ctx, subject, serializedData)
 	return err
 }
