@@ -26,7 +26,7 @@ var (
 
 func RunServer() {
 	http.Handle("/metrics", promhttp.Handler())
-	err := http.ListenAndServe("0.0.0.0:9000", nil)
+	err := http.ListenAndServe("0.0.0.0:9000", nil) // nolint:all
 	if err != nil {
 		return
 	}

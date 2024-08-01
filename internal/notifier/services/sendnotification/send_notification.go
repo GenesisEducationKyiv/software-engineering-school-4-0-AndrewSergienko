@@ -1,6 +1,7 @@
 package sendnotification
 
 import (
+	"fmt"
 	"go_service/internal/notifier/infrastructure/database/models"
 	"log/slog"
 )
@@ -63,7 +64,7 @@ func (s *SendNotification) Handle(data InputData) OutputData {
 		err = s.emailGateway.Send(subscriber.Email, rate)
 		if err != nil {
 			errEmails = append(errEmails, subscriber.Email)
-			slog.Warn("Failed to send email: %v\n", err)
+			slog.Warn(fmt.Sprintf("Failed to send email: %v\n", err))
 		}
 	}
 	return OutputData{nil, errEmails}

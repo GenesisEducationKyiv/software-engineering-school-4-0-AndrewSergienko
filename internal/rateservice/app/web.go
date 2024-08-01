@@ -20,7 +20,7 @@ func InitWebApp(
 	apiSettings infrastructure.CurrencyAPISettings,
 ) *fiber.App {
 	app := fiber.New()
-	//app.Use(swagger.New())
+	// app.Use(swagger.New())
 
 	app.Use(func(c *fiber.Ctx) error {
 		timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
