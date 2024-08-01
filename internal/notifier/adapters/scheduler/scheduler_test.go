@@ -44,7 +44,7 @@ func (suite *SchedulerAdapterTestSuite) TearDownTest() {
 }
 
 func (suite *SchedulerAdapterTestSuite) TestGetLastTimeExisted() {
-	now := time.Now()
+	now := time.Now().UTC()
 	now = now.Truncate(time.Second)
 
 	err := suite.adapter.SetLastTime(now)
@@ -59,7 +59,7 @@ func (suite *SchedulerAdapterTestSuite) TestGetLastTimeNotExisted() {
 }
 
 func (suite *SchedulerAdapterTestSuite) TestSetLastTime() {
-	err := suite.adapter.SetLastTime(time.Now())
+	err := suite.adapter.SetLastTime(time.Now().UTC())
 
 	if err != nil {
 		suite.T().Skip()
