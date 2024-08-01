@@ -76,7 +76,7 @@ jobs:
       DB_HOST: localhost
       EMAIL: test@mail.com
       EMAIL_PASSWORD: password
-      EMAIL_HOST: localhost
+      EMAIL_HOST: localhost:1025
       BROKER_URL: nats://localhost:4222
 
     services:
