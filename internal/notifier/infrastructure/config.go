@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-func fetchEnv(name string, strict bool) string { // nolint: all
+func FetchEnv(name string, strict bool) string { // nolint: all
 	value := os.Getenv(name)
 	if value == "" {
 		if strict {
 			slog.Error(fmt.Sprintf("Environment variable %s is not set", name))
-			os.Exit(1)
+			panic(fmt.Sprintf("Environment variable %s is not set", name))
 		}
 		slog.Warn(fmt.Sprintf("Environment variable %s is not set", name))
 	}
@@ -49,11 +49,11 @@ type BrokerSettings struct {
 
 func GetDatabaseSettings() DatabaseSettings {
 	return DatabaseSettings{
-		User:     fetchEnv("POSTGRES_USER", true),
-		Password: fetchEnv("POSTGRES_PASSWORD", true),
-		Database: fetchEnv("POSTGRES_DB", true),
-		Host:     fetchEnv("DB_HOST", true),
-		Port:     fetchEnv("DB_PORT", true),
+		User:     FetchEnv("POSTGRES_USER", true),
+		Password: FetchEnv("POSTGRES_PASSWORD", true),
+		Database: FetchEnv("POSTGRES_DB", true),
+		Host:     FetchEnv("DB_HOST", true),
+		Port:     FetchEnv("DB_PORT", true),
 	}
 }
 
@@ -69,14 +69,14 @@ func GetServicesAPISettings(configFilePath string) (*ServicesAPISettings, error)
 
 func GetEmailSettings() EmailSettings {
 	return EmailSettings{
-		Email:    fetchEnv("EMAIL", true),
-		Password: fetchEnv("EMAIL_PASSWORD", true),
-		Host:     fetchEnv("EMAIL_HOST", true),
+		Email:    FetchEnv("EMAIL", true),
+		Password: FetchEnv("EMAIL_PASSWORD", true),
+		Host:     FetchEnv("EMAIL_HOST", true),
 	}
 }
 
 func GetBrokerSettings() BrokerSettings {
 	return BrokerSettings{
-		URL: fetchEnv("BROKER_URL", true),
+		URL: FetchEnv("BROKER_URL", true),
 	}
 }

@@ -26,7 +26,7 @@ func (ea Adapter) Send(target string, rate float32) error {
 	to := []string{target}
 	subject := "Subject: USD rate\r\n"
 	from := "From: " + ea.username + "\r\n"
-	toHeader := "To: target@example.com\r\n"
+	toHeader := "To: " + target + "\r\n"
 	body := "USD rate: " + fmt.Sprintf("%f", rate) + "\r\n"
 
 	msg := []byte(from + toHeader + subject + "\r\n" + body)

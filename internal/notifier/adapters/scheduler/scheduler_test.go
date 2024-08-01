@@ -6,6 +6,7 @@ import (
 	"go_service/internal/notifier/infrastructure/database"
 	"gorm.io/gorm"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -15,6 +16,7 @@ type SchedulerAdapterTestSuite struct {
 	db          *gorm.DB
 	transaction *gorm.DB
 	adapter     *ScheduleAdapter
+	path        *string
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupSuite() {
@@ -22,16 +24,23 @@ func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 	db, err := database.New(settings)
 	suite.db = db
 	suite.NoError(err)
+
+	projectRoot, err := os.Getwd()
+	suite.NoError(err)
+
+	configPath := filepath.Join(projectRoot, "..", "..", "..", "..", "conf", "email_sent_time.json")
+	suite.path = &configPath
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	suite.adapter = NewScheduleAdapter()
+
+	suite.adapter = NewScheduleAdapter(suite.path)
 }
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {
 	suite.transaction.Rollback()
-	_ = os.Remove("conf/email_sent_time.json")
+	_ = os.Remove(*suite.path)
 }
 
 func (suite *SchedulerAdapterTestSuite) TestGetLastTimeExisted() {

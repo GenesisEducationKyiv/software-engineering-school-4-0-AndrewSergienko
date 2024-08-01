@@ -14,7 +14,10 @@ type ScheduleAdapter struct {
 	filename string
 }
 
-func NewScheduleAdapter() *ScheduleAdapter {
+func NewScheduleAdapter(path *string) *ScheduleAdapter {
+	if path != nil {
+		return &ScheduleAdapter{filename: *path}
+	}
 	return &ScheduleAdapter{filename: "conf/email_sent_time.json"}
 }
 
