@@ -20,6 +20,7 @@ jobs:
       FAWAZA_API_URL: ${{ secrets.FAWAZA_API_URL }}
       CURRENCY_API_URL: ${{ secrets.CURRENCY_API_URL }}
       EXCHANGERATE_API_URL: ${{ secrets.EXCHANGERATE_API_URL }}
+      BROKER_URL: nats://localhost:4222
 
     services:
       postgres:
@@ -32,9 +33,9 @@ jobs:
           POSTGRES_DB: goservice
 
       nats:
-        image: nats:latest
+        image: sergienkoandrew/nats-js
         ports:
-          - 4222:4222
+          - "4222:4222"
 
     steps:
     - uses: actions/checkout@v3
@@ -76,6 +77,7 @@ jobs:
       EMAIL: test@mail.com
       EMAIL_PASSWORD: password
       EMAIL_HOST: localhost
+      BROKER_URL: nats://localhost:4222
 
     services:
       postgres:
@@ -88,7 +90,7 @@ jobs:
           POSTGRES_DB: goservice
 
       nats:
-        image: nats:latest
+        image: sergienkoandrew/nats-js
         ports:
           - 4222:4222
 
