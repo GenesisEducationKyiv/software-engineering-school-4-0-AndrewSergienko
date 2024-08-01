@@ -7,6 +7,7 @@ import (
 	"go_service/internal/rateservice/customers"
 	"go_service/internal/rateservice/infrastructure"
 	"go_service/internal/rateservice/infrastructure/broker"
+	"go_service/internal/rateservice/infrastructure/cache"
 	"go_service/internal/rateservice/infrastructure/database"
 	"go_service/internal/rateservice/infrastructure/metrics"
 	"log/slog"
@@ -20,6 +21,7 @@ func main() {
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
 	databaseSettings := infrastructure.GetDatabaseSettings()
 	brokerSettings := infrastructure.GetBrokerSettings()
+	cahceSettings := infrastructure.GetCacheSettings()
 
 	ctx := context.Background()
 
@@ -53,9 +55,12 @@ func main() {
 		slog.Info("Consumer stopped")
 	}()
 
+	cacheClient := cache.New(cahceSettings)
+	defer cacheClient.Close()
+
 	go metrics.RunServer()
 
 	// web app
-	webApp := app.InitWebApp(ctx, db, js, currencyAPISettings)
+	webApp := app.InitWebApp(ctx, db, js, cacheClient, currencyAPISettings)
 	slog.Error(fmt.Sprintf("App failed with error: %v", webApp.Listen(":8080")))
 }

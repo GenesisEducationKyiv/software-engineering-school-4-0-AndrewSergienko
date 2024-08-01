@@ -30,6 +30,14 @@ services:
     networks:
         - rateservice-network
 
+  rateservice-memcached:
+    image: memcached:latest
+    container_name: rateservice.memcached
+    ports:
+      - "11211:11211"
+    networks:
+      - rateservice-network
+
   notifier:
     build: ..
     container_name: notifier

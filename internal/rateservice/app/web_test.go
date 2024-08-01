@@ -12,6 +12,7 @@ import (
 	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/infrastructure"
 	"go_service/internal/rateservice/infrastructure/broker"
+	"go_service/internal/rateservice/infrastructure/cache"
 	"go_service/internal/rateservice/infrastructure/database"
 	"gorm.io/gorm"
 	"net/http/httptest"
@@ -118,15 +119,18 @@ func messageHandler(eventGateway EventGateway, isError bool) func(msg jetstream.
 func (suite *SubscribersPresentationSuite) SetupTest() {
 	ctx := context.Background()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
+	cacheSettings := infrastructure.GetCacheSettings()
 
 	suite.transaction = suite.db.Begin()
 
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
 	customersConsumer, err := customers.NewConsumer(ctx, suite.transaction, suite.js).Run()
 
+	cacheClient := cache.New(cacheSettings)
+
 	suite.NoError(err)
 	suite.customersConsumer = customersConsumer
-	suite.webApp = InitWebApp(ctx, suite.transaction, suite.js, currencyAPISettings)
+	suite.webApp = InitWebApp(ctx, suite.transaction, suite.js, cacheClient, currencyAPISettings)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {

@@ -11,8 +11,9 @@ type IoC struct {
 	currencyRateFacade *adapters.APIReaderFacade
 }
 
-func NewIoC(currencyAPISettings infrastructure.CurrencyAPISettings) *IoC {
+func NewIoC(cacheAdapter adapters.CacheRateAdapter, currencyAPISettings infrastructure.CurrencyAPISettings) *IoC {
 	readers := adapters.CreateReaders(currencyAPISettings)
+	readers = append([]adapters.APICurrencyReader{cacheAdapter}, readers...)
 	return &IoC{
 		currencyRateFacade: adapters.NewAPIReaderFacade(readers),
 	}

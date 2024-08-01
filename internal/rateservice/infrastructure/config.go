@@ -37,6 +37,10 @@ type BrokerSettings struct {
 	URL string
 }
 
+type CacheSettings struct {
+	URL string
+}
+
 func GetCurrencyAPISettings() CurrencyAPISettings {
 	return CurrencyAPISettings{
 		CurrencyAPIURL:     FetchEnv("CURRENCY_API_URL", false),
@@ -58,5 +62,11 @@ func GetDatabaseSettings() DatabaseSettings {
 func GetBrokerSettings() BrokerSettings {
 	return BrokerSettings{
 		URL: FetchEnv("BROKER_URL", true),
+	}
+}
+
+func GetCacheSettings() CacheSettings {
+	return CacheSettings{
+		URL: FetchEnv("CACHE_URL", true),
 	}
 }

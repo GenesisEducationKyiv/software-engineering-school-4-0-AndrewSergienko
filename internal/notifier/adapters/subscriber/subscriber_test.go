@@ -48,6 +48,34 @@ func (suite *SubscriberAdapterTestSuite) TestGetAll() {
 	}
 }
 
+func (suite *SubscriberAdapterTestSuite) TestGetByEmail() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	subscriber := suite.adapter.GetByEmail(email)
+
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreate() {
+	email := "test@gmail.com"
+
+	err := suite.adapter.Create(email)
+
+	suite.Nil(err)
+
+	subscriber := suite.adapter.GetByEmail(email)
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreateDuplicate() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	err := suite.adapter.Create(email)
+	suite.NotNil(err)
+}
+
 func TestSubscriberAdapterSuite(t *testing.T) {
 	suite.Run(t, new(SubscriberAdapterTestSuite))
 }

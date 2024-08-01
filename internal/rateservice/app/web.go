@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,6 +18,7 @@ func InitWebApp(
 	ctx context.Context,
 	db *gorm.DB,
 	conn jetstream.JetStream,
+	cacheClient *memcache.Client,
 	apiSettings infrastructure.CurrencyAPISettings,
 ) *fiber.App {
 	app := fiber.New()
@@ -36,7 +38,7 @@ func InitWebApp(
 	})
 
 	subscribersApp := customers.NewApp(ctx, db, conn)
-	currencyRateApp := currencyrate.NewApp(apiSettings)
+	currencyRateApp := currencyrate.NewApp(cacheClient, apiSettings)
 
 	app.Mount("/customers/", subscribersApp)
 	app.Mount("/rates/", currencyRateApp)

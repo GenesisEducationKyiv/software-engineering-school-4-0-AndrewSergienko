@@ -2,8 +2,11 @@ package presentation
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"go_service/internal/rateservice/currencyrate/adapters"
 	"go_service/internal/rateservice/currencyrate/services"
+	"log/slog"
 )
 
 type GetCurrencyRate interface {
@@ -11,11 +14,12 @@ type GetCurrencyRate interface {
 }
 
 type CurrencyHandlers struct {
-	container InteractorFactory
+	container    InteractorFactory
+	cacheAdapter adapters.CacheRateAdapter
 }
 
-func NewCurrencyHandlers(container InteractorFactory) CurrencyHandlers {
-	return CurrencyHandlers{container}
+func NewCurrencyHandlers(container InteractorFactory, cacheAdapter adapters.CacheRateAdapter) CurrencyHandlers {
+	return CurrencyHandlers{container, cacheAdapter}
 }
 
 func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
@@ -32,6 +36,11 @@ func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
 			})
 		}
 		return fiber.ErrInternalServerError
+	}
+
+	err := ch.cacheAdapter.SetCurrencyRate(from, to, result.Result)
+	if err != nil {
+		slog.Warn(fmt.Sprintf("Error set currency rate to cache. Error: %v", err))
 	}
 
 	response := map[string]interface{}{
