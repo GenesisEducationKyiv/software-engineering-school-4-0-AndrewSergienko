@@ -63,4 +63,7 @@ jobs:
         goose -dir internal/rateservice/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
 
     - name: Run tests
-      run: go test -v ./...
+      run: go test -v ./... -coverprofile=coverage.out -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3

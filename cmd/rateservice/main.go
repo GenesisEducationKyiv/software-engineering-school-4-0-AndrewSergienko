@@ -8,6 +8,7 @@ import (
 	"go_service/internal/rateservice/infrastructure"
 	"go_service/internal/rateservice/infrastructure/broker"
 	"go_service/internal/rateservice/infrastructure/database"
+	"go_service/internal/rateservice/infrastructure/metrics"
 	"log/slog"
 	"os"
 )
@@ -51,6 +52,8 @@ func main() {
 		consumeContext.Stop()
 		slog.Info("Consumer stopped")
 	}()
+
+	go metrics.RunServer()
 
 	// web app
 	webApp := app.InitWebApp(ctx, db, js, currencyAPISettings)

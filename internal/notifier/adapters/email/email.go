@@ -3,6 +3,7 @@ package email
 import (
 	"fmt"
 	"go_service/internal/notifier/infrastructure"
+	"go_service/internal/notifier/infrastructure/metrics"
 	"net/smtp"
 )
 
@@ -30,5 +31,14 @@ func (ea Adapter) Send(target string, rate float32) error {
 
 	msg := []byte(from + toHeader + subject + "\r\n" + body)
 
-	return smtp.SendMail(ea.host, nil, ea.username, to, msg)
+	err := smtp.SendMail(ea.host, nil, ea.username, to, msg)
+
+	var status string
+	if err != nil {
+		status = "error"
+	} else {
+		status = "success"
+	}
+	metrics.EmailsSentTotal.WithLabelValues(status).Inc()
+	return err
 }

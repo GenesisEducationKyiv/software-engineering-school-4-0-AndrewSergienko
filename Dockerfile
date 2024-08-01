@@ -17,4 +17,4 @@ RUN apt-get update && \
     apt-get install -y curl && \
     curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin/
 
-CMD sh -c "just scripts/${APP_NAME}/migrate & ./\${APP_NAME}"
+CMD sh -c "just ./scripts/${APP_NAME}/migrate & ./\${APP_NAME}"

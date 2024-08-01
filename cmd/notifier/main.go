@@ -7,6 +7,7 @@ import (
 	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/infrastructure/broker"
 	"go_service/internal/notifier/infrastructure/database"
+	"go_service/internal/notifier/infrastructure/metrics"
 	"log"
 	"log/slog"
 	"os"
@@ -68,6 +69,8 @@ func main() {
 		consumeContext.Stop()
 		slog.Info("Consumer stopped")
 	}()
+
+	go metrics.RunServer()
 
 	select {}
 }

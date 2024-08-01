@@ -101,10 +101,11 @@ func (suite *SubscribersPresentationSuite) SetupTest() {
 	ctx := context.Background()
 	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
+	brokerSettings := infrastructure.GetBrokerSettings()
 
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
 
-	conn, js, err := broker.New()
+	conn, js, err := broker.New(brokerSettings)
 	suite.NoError(err)
 
 	if conn == nil {

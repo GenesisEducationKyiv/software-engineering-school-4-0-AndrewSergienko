@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'rateservice'
+    static_configs:
+      - targets: ['rateservice:9000']
+  - job_name: 'notifier'
+    static_configs:
+      - targets: ['notifier:9000']
+
+remote_write:
+  - url: "http://victoriametrics:8428/api/v1/write"
