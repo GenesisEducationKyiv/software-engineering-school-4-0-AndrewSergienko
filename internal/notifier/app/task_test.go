@@ -14,11 +14,12 @@ import (
 	"go_service/internal/notifier/infrastructure/database"
 	"gorm.io/gorm"
 	"io"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
+	"testing"
 )
 
 type RateNotifierTestSuite struct {
@@ -51,23 +52,30 @@ func (suite *RateNotifierTestSuite) SetupSuite() {
 	suite.NoError(err)
 
 	suite.db = db
+
+	srv := &http.Server{Addr: ":8081", Handler: http.DefaultServeMux}
+	http.HandleFunc("/", handler)
+	go func() {
+		log.Println("Server is starting on port 8081...")
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
 }
 
 func (suite *RateNotifierTestSuite) SetupTest() {
 	ctx := context.Background()
 
-	projectRoot, err := os.Getwd()
-	suite.NoError(err)
-
-	configPath := filepath.Join(projectRoot, "..", "..", "..", "conf", "config.toml")
-
 	emailSettings := infrastructure.GetEmailSettings()
-	servicesAPISettings, err := infrastructure.GetServicesAPISettings(configPath)
+	servicesAPISettings := infrastructure.CurrencyRateServiceAPISettings{
+		Host:           "http://127.0.0.1:8081",
+		GetCurrencyURL: "/",
+	}
 
 	suite.transaction = suite.db.Begin()
 
 	schedulerGateway := scheduler.NewScheduleAdapter(nil)
-	container := NewIoC(ctx, suite.transaction, servicesAPISettings.CurrencyRate, emailSettings, suite.js)
+	container := NewIoC(ctx, suite.transaction, &servicesAPISettings, emailSettings, suite.js)
 
 	suite.task = NewRateNotifier(container, schedulerGateway)
 }
@@ -91,6 +99,16 @@ func (suite *RateNotifierTestSuite) TestRun() {
 	suite.True(checkMail(email, "test3@gmail.com"))
 
 	cron.Stop()
+}
+
+func TestRateNotifierTestSuite(t *testing.T) {
+	suite.Run(t, new(RateNotifierTestSuite))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	response := map[string]float64{"rates": 50.0}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 type Mailbox struct {
