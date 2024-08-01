@@ -21,6 +21,7 @@ jobs:
       CURRENCY_API_URL: ${{ secrets.CURRENCY_API_URL }}
       EXCHANGERATE_API_URL: ${{ secrets.EXCHANGERATE_API_URL }}
       BROKER_URL: nats://localhost:4222
+      CACHE_URL: memcached:11211
 
     services:
       postgres:
@@ -36,6 +37,11 @@ jobs:
         image: sergienkoandrew/nats-js
         ports:
           - "4222:4222"
+
+      memcached:
+        image: memcached:latest
+        ports:
+          - "11211:11211"
 
     steps:
     - uses: actions/checkout@v3
