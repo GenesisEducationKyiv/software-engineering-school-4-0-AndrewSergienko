@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 	"go_service/internal/rateservice/currencyrate"
 	"go_service/internal/rateservice/customers"
 	"go_service/internal/rateservice/infrastructure"
@@ -14,6 +15,9 @@ import (
 	"net/http"
 )
 
+// InitWebApp @title Rates API
+// @version 1.0
+// @BasePath /
 func InitWebApp(
 	ctx context.Context,
 	db *gorm.DB,
@@ -22,7 +26,8 @@ func InitWebApp(
 	apiSettings infrastructure.CurrencyAPISettings,
 ) *fiber.App {
 	app := fiber.New()
-	// app.Use(swagger.New())
+
+	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	app.Use(func(c *fiber.Ctx) error {
 		timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {

@@ -53,7 +53,7 @@ func (suite *RateNotifierTestSuite) SetupSuite() {
 
 	suite.db = db
 
-	srv := &http.Server{Addr: ":8081", Handler: http.DefaultServeMux}
+	srv := &http.Server{Addr: ":8081", Handler: http.DefaultServeMux} //nolint: all
 	http.HandleFunc("/", handler)
 	go func() {
 		log.Println("Server is starting on port 8081...")
@@ -105,10 +105,10 @@ func TestRateNotifierTestSuite(t *testing.T) {
 	suite.Run(t, new(RateNotifierTestSuite))
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, _ *http.Request) {
 	response := map[string]float64{"rates": 50.0}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 type Mailbox struct {

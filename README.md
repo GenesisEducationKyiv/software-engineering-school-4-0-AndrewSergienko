@@ -1,6 +1,31 @@
+[![codecov](https://codecov.io/github/AndrewSergienko/software-engineering-school-4-0-AndrewSergienko/graph/badge.svg?token=WPc4cY2PlD)](https://codecov.io/github/AndrewSergienko/software-engineering-school-4-0-AndrewSergienko)
+[![Tests](https://github.com/GenesisEducationKyiv/software-engineering-school-4-0-AndrewSergienko/actions/workflows/tests.yaml/badge.svg)](https://github.com/GenesisEducationKyiv/software-engineering-school-4-0-AndrewSergienko/actions/workflows/tests.yaml)
+
 # Currency rate service
 
 This is a simple currency rate service that provides the exchange rate between two currencies.
+
+This project implements some architectural and application patterns. Its main functionality is to find out the exchange rate between two currencies and subscribe to updates of the USD to UAH exchange rate.
+
+The service is divided into 2 logical parts: RateService (the core of the project) and Notifier (a microservice for working with notifications). Architecturally, it looks like a monolith and an auxiliary microservice. 
+
+The monolith is modular and consists of currencyrate and customers modules. The modules are loosely coupled and have only a common start point, so they can be easily moved to separate services.
+
+
+The structure of the project components is as follows:
+![img.png](docs/arch.png)
+
+## Stack
+The following stack was used in the development:
+- Go
+- Web framework: Fiber
+- Database: PostgreSQL
+- ORM: GORM
+- Event streaming: NATS JetStream
+- Cache: Memcached
+- Containerization: Docker
+- Metrics: Prometheus + VictoriaMetrics
+- Logs: Vector + Loki
 
 
 ## Observability
@@ -9,29 +34,12 @@ They are of two types: business criteria and technical criteria.
 The first ones show information for the business that it needs to create/change its next development steps.
 The latter show information about the program's operation, its workload, speed, capacity, etc.
 
-Below is a list of metrics that can be collected in the project:
+The main metrics that are collected are:
+- Total requests
+- Requests success response rate(calculated by Total requests)
+- Mean latency
+- Currency rate API success response rate
 
-### Business criteria
-- **Number of users**: The number of users that use the service.
-- **Number of unique requests**: The number of unique requests that the service receives.
-- **Customer retention rate**: The percentage of returning users.
-- **Customer satisfaction score**: A measure of user satisfaction, often collected through surveys.
-- **Churn rate**: The percentage of users who stop using the service over a given period.
+Below is a part of the grafana dashboard:
 
-### Technical criteria
-- **Requests per second (RPS)**: The number of requests that the service receives per second.
-- **Success rate (general and per endpoint)**: The percentage of successful requests.
-- **Mean latency (general and per endpoint)**: The average time taken for a request to be processed.
-
-- **Success rate per currency rate source**: The percentage of successful requests for each currency rate source.
-
-- **CPU usage**: The percentage of CPU resources used by the service.
-- **Memory usage**: The amount of memory used by the service.
-- **Disk I/O**: The rate of read and write operations on the disk.
-- **Network I/O**: The rate of data transmission over the network.
-
-### Alerts
-- **High error rate**: If the error rate exceeds a certain threshold, an alert is triggered.
-- **High latency**: If the latency exceeds a certain threshold, an alert is triggered.
-- **High CPU usage**: If the CPU usage exceeds a certain threshold, an alert is triggered.
-- **High memory usage**: If the memory usage exceeds a certain threshold, an alert is triggered.
+![grafana.jpg](docs/grafana.jpg)

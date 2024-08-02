@@ -22,6 +22,17 @@ func NewCurrencyHandlers(container InteractorFactory, cacheAdapter adapters.Cach
 	return CurrencyHandlers{container, cacheAdapter}
 }
 
+// GetCurrency @Summary Get currency rate
+// @Description Get the exchange rate from one currency to another
+// @Tags currency
+// @Accept json
+// @Produce json
+// @Param from query string true "Source currency code"
+// @Param to query string false "Target currency code" default(UAH)
+// @Success 200 {object} map[string]interface{} "rate"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /currency [get]
 func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
 	from := c.Query("from")
 	to := c.Query("to", "UAH")
