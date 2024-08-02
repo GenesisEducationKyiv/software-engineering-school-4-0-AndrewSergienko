@@ -1,0 +1,10 @@
+#!/usr/bin/env just --justfile
+set shell := ["sh", "-c"]
+set dotenv-path := "../../conf/.env.rateservice"
+
+update:
+  go get -u
+  go mod tidy -v
+
+migrate:
+    goose -dir ../../internal/rateservice/infrastructure/database/migrations postgres up

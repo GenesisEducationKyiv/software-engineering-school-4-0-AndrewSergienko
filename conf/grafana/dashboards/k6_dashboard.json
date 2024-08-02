@@ -1,0 +1,99 @@
+{
+  "id": null,
+  "uid": "k6-load-test",
+  "title": "K6 Load Test Dashboard",
+  "tags": ["k6"],
+  "timezone": "browser",
+  "schemaVersion": 26,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "HTTP Request Duration",
+      "gridPos": {"x": 0, "y": 0, "w": 24, "h": 8},
+      "targets": [
+        {
+          "measurement": "http_req_duration",
+          "groupBy": [{"type": "time", "params": ["$__interval"]}],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "mean", "params": []}
+            ]
+          ],
+          "alias": "HTTP Request Duration",
+          "refId": "A"
+        }
+      ],
+      "xaxis": {"mode": "time"},
+      "yaxes": [
+        {"format": "ms", "label": "Duration", "logBase": 1},
+        {"format": "short", "logBase": 1}
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "HTTP Request Count",
+      "gridPos": {"x": 0, "y": 8, "w": 24, "h": 8},
+      "targets": [
+        {
+          "measurement": "http_reqs",
+          "groupBy": [{"type": "time", "params": ["$__interval"]}],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "sum", "params": []}
+            ]
+          ],
+          "alias": "HTTP Requests",
+          "refId": "B"
+        }
+      ],
+      "xaxis": {"mode": "time"},
+      "yaxes": [
+        {"format": "short", "label": "Count", "logBase": 1},
+        {"format": "short", "logBase": 1}
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Virtual Users",
+      "gridPos": {"x": 0, "y": 16, "w": 24, "h": 8},
+      "targets": [
+        {
+          "measurement": "vus",
+          "groupBy": [{"type": "time", "params": ["$__interval"]}],
+          "select": [
+            [
+              {"type": "field", "params": ["value"]},
+              {"type": "max", "params": []}
+            ]
+          ],
+          "alias": "VUs",
+          "refId": "C"
+        }
+      ],
+      "xaxis": {"mode": "time"},
+      "yaxes": [
+        {"format": "short", "label": "VUs", "logBase": 1},
+        {"format": "short", "logBase": 1}
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "type": "interval",
+        "name": "interval",
+        "label": "Interval",
+        "auto": true,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "query": "1s,10s,30s,1m,5m,10m,30m,1h",
+        "refresh": "2",
+        "current": {"text": "10s", "value": "10s"}
+      }
+    ]
+  }
+}

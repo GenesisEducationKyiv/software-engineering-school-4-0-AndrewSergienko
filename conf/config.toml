@@ -1,0 +1,3 @@
+[currencyRate]
+host="http://rateservice:8080"
+getCurrencyURL="/rates/"
