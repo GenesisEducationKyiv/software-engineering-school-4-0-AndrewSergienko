@@ -1,21 +1,28 @@
 package notifier
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"go_service/internal/infrastructure"
-	"go_service/internal/notifier/adapters"
+	"context"
+	"github.com/nats-io/nats.go/jetstream"
+	"go_service/internal/notifier/adapters/scheduler"
 	"go_service/internal/notifier/app"
+	"go_service/internal/notifier/infrastructure"
 	"gorm.io/gorm"
 )
 
 func NewTask(
+	ctx context.Context,
 	db *gorm.DB,
-	currencyApp *fiber.App,
-	subscriberApp *fiber.App,
+	currencyServiceSettings *infrastructure.CurrencyRateServiceAPISettings,
 	emailSettings infrastructure.EmailSettings,
-) app.RateMailer {
-	schedulerGateway := adapters.NewScheduleDBAdapter(db)
-	container := app.NewIoC(currencyApp, subscriberApp, emailSettings)
+	conn jetstream.JetStream,
+) app.RateNotifier {
+	schedulerGateway := scheduler.NewScheduleAdapter(nil)
+	container := app.NewIoC(ctx, db, currencyServiceSettings, emailSettings, conn)
 
-	return app.NewRateMailer(container, schedulerGateway)
+	return app.NewRateNotifier(container, schedulerGateway)
+}
+
+func NewConsumer(ctx context.Context, db *gorm.DB, js jetstream.JetStream) app.Consumer {
+	container := app.NewIoC(ctx, db, nil, infrastructure.EmailSettings{}, js)
+	return app.NewConsumer(ctx, js, container)
 }
