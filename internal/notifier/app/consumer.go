@@ -80,6 +80,8 @@ func newMessageHandler(container InteractorFactory) func(msg jetstream.Msg) {
 			}
 			interactor.Handle(inputData)
 			_ = msg.Ack()
+		default:
+			_ = msg.Ack()
 		}
 	}
 }

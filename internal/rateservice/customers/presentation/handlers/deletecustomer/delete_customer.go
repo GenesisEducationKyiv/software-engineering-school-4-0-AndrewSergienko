@@ -22,6 +22,16 @@ func New(container presentation.InteractorFactory, eventGateway EventGateway) *H
 	return &Handler{container, eventGateway}
 }
 
+// HandleRequest @Summary Delete a customer
+// @Description Delete a customer with the provided email
+// @Tags customer
+// @Accept json
+// @Produce json
+// @Param email body string true "Customer email"
+// @Success 200 {string} string "OK"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /customer [delete]
 func (h *Handler) HandleRequest(c *fiber.Ctx) error {
 	var requestData struct {
 		Email string `json:"email"`

@@ -7,7 +7,7 @@ on:
     branches: ["*"]
 
 jobs:
-  build:
+  rateservice:
 
     runs-on: ubuntu-latest
 
@@ -17,12 +17,11 @@ jobs:
       POSTGRES_DB: goservice
       DB_PORT: 5432
       DB_HOST: localhost
-      EMAIL: test@mail.com
-      EMAIL_PASSWORD: password
-      EMAIL_HOST: localhost
       FAWAZA_API_URL: ${{ secrets.FAWAZA_API_URL }}
       CURRENCY_API_URL: ${{ secrets.CURRENCY_API_URL }}
       EXCHANGERATE_API_URL: ${{ secrets.EXCHANGERATE_API_URL }}
+      BROKER_URL: nats://localhost:4222
+      CACHE_URL: memcached:11211
 
     services:
       postgres:
@@ -35,13 +34,14 @@ jobs:
           POSTGRES_DB: goservice
 
       nats:
-        image: nats:latest
+        image: sergienkoandrew/nats-js
         ports:
-          - 4222:4222
+          - "4222:4222"
 
-      mailhog:
-        image: mailhog/mailhog
-        ports: [ '1025:1025', '8025:8025' ]
+      memcached:
+        image: memcached:latest
+        ports:
+          - "11211:11211"
 
     steps:
     - uses: actions/checkout@v3
@@ -63,4 +63,70 @@ jobs:
         goose -dir internal/rateservice/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
 
     - name: Run tests
-      run: go test -v ./...
+      run: go test -v ./internal/rateservice/... -coverprofile=coverage.out -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  notifier:
+
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: goservice
+      DB_PORT: 5432
+      DB_HOST: localhost
+      EMAIL: test@mail.com
+      EMAIL_PASSWORD: password
+      EMAIL_HOST: localhost:1025
+      BROKER_URL: nats://localhost:4222
+
+    services:
+      postgres:
+        image: postgres
+        ports: [ '5432:5432' ]
+        options: --health-cmd "pg_isready -d goservice -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: goservice
+
+      nats:
+        image: sergienkoandrew/nats-js
+        ports:
+          - 4222:4222
+
+      mailhog:
+        image: mailhog/mailhog
+        ports: [ '1025:1025', '8025:8025' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.22.3'
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Install Goose
+        run: |
+          go install github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: Run database migrations
+        run: |
+          goose -dir internal/notifier/infrastructure/database/migrations postgres "host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}" up
+
+      - name: Run tests
+        run: go test -v ./internal/notifier/... -coverprofile=coverage.out -covermode=atomic
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

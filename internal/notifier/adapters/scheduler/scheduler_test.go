@@ -6,6 +6,7 @@ import (
 	"go_service/internal/notifier/infrastructure/database"
 	"gorm.io/gorm"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -15,25 +16,35 @@ type SchedulerAdapterTestSuite struct {
 	db          *gorm.DB
 	transaction *gorm.DB
 	adapter     *ScheduleAdapter
+	path        *string
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
-	suite.db = database.New(settings)
+	db, err := database.New(settings)
+	suite.db = db
+	suite.NoError(err)
+
+	projectRoot, err := os.Getwd()
+	suite.NoError(err)
+
+	configPath := filepath.Join(projectRoot, "..", "..", "..", "..", "conf", "email_sent_time.json")
+	suite.path = &configPath
 }
 
 func (suite *SchedulerAdapterTestSuite) SetupTest() {
 	suite.transaction = suite.db.Begin()
-	suite.adapter = NewScheduleAdapter()
+
+	suite.adapter = NewScheduleAdapter(suite.path)
 }
 
 func (suite *SchedulerAdapterTestSuite) TearDownTest() {
 	suite.transaction.Rollback()
-	_ = os.Remove("conf/email_sent_time.json")
+	_ = os.Remove(*suite.path)
 }
 
 func (suite *SchedulerAdapterTestSuite) TestGetLastTimeExisted() {
-	now := time.Now()
+	now := time.Now().UTC()
 	now = now.Truncate(time.Second)
 
 	err := suite.adapter.SetLastTime(now)
@@ -48,7 +59,7 @@ func (suite *SchedulerAdapterTestSuite) TestGetLastTimeNotExisted() {
 }
 
 func (suite *SchedulerAdapterTestSuite) TestSetLastTime() {
-	err := suite.adapter.SetLastTime(time.Now())
+	err := suite.adapter.SetLastTime(time.Now().UTC())
 
 	if err != nil {
 		suite.T().Skip()

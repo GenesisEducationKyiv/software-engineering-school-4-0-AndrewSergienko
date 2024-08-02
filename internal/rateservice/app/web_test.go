@@ -12,9 +12,11 @@ import (
 	"go_service/internal/rateservice/customers/adapters"
 	"go_service/internal/rateservice/infrastructure"
 	"go_service/internal/rateservice/infrastructure/broker"
+	"go_service/internal/rateservice/infrastructure/cache"
 	"go_service/internal/rateservice/infrastructure/database"
 	"gorm.io/gorm"
 	"net/http/httptest"
+	"testing"
 )
 
 type TestMessage struct {
@@ -43,11 +45,29 @@ type SubscribersPresentationSuite struct {
 }
 
 func (suite *SubscribersPresentationSuite) SetupSuite() {
+	ctx := context.Background()
+
 	databaseSettings := infrastructure.GetDatabaseSettings()
+	brokerSettings := infrastructure.GetBrokerSettings()
+
 	db, err := database.New(databaseSettings)
 	suite.NoError(err)
 	suite.db = db
 
+	conn, js, err := broker.New(brokerSettings)
+	suite.NoError(err)
+
+	_, err = broker.NewStream(ctx, js, "events")
+	suite.NoError(err)
+
+	suite.eventGateway = adapters.NewNatsEventEmitter(ctx, js)
+
+	suite.conn, suite.js = conn, js
+}
+
+func (suite *SubscribersPresentationSuite) TearDownSuite() {
+	suite.notifierConsumer.Stop()
+	broker.Finalize(suite.conn)
 }
 
 func runConsumer(js jetstream.JetStream, eventGateway EventGateway, isError bool) jetstream.ConsumeContext {
@@ -97,41 +117,29 @@ func messageHandler(eventGateway EventGateway, isError bool) func(msg jetstream.
 }
 
 func (suite *SubscribersPresentationSuite) SetupTest() {
-	suite.T().Skip("NATS connection failed")
 	ctx := context.Background()
-	suite.transaction = suite.db.Begin()
 	currencyAPISettings := infrastructure.GetCurrencyAPISettings()
+	cacheSettings := infrastructure.GetCacheSettings()
+
+	suite.transaction = suite.db.Begin()
 
 	suite.subscriberGateway = adapters.NewSubscriberAdapter(suite.transaction)
-
-	conn, js, err := broker.New()
-	suite.NoError(err)
-
-	if conn == nil {
-		suite.T().Skip("NATS connection failed")
-	}
-
-	suite.conn, suite.js = conn, js
-
-	suite.eventGateway = adapters.NewNatsEventEmitter(ctx, suite.js)
-	suite.webApp = InitWebApp(ctx, suite.transaction, suite.js, currencyAPISettings)
 	customersConsumer, err := customers.NewConsumer(ctx, suite.transaction, suite.js).Run()
+
+	cacheClient := cache.New(cacheSettings)
 
 	suite.NoError(err)
 	suite.customersConsumer = customersConsumer
+	suite.webApp = InitWebApp(ctx, suite.transaction, suite.js, cacheClient, currencyAPISettings)
 }
 
 func (suite *SubscribersPresentationSuite) TearDownTest() {
 	suite.customersConsumer.Stop()
+	suite.transaction.Rollback()
 	suite.notifierConsumer.Stop()
-	suite.db.Rollback()
-	broker.Finalize(suite.conn)
 }
 
 func (suite *SubscribersPresentationSuite) TestAddSubscriber_Success() {
-	// There is some problem with transaction. TODO: Repair test
-	suite.T().Skip()
-
 	suite.notifierConsumer = runConsumer(suite.js, suite.eventGateway, false)
 
 	var jsonStr = []byte(`{"email":"test@gmail.com"}`)
@@ -142,17 +150,12 @@ func (suite *SubscribersPresentationSuite) TestAddSubscriber_Success() {
 	resp, err := suite.webApp.Test(req)
 	suite.Require().NoError(err, "Error executing request")
 
-	// TEMP SOLUTION
-	if resp.Status != "200 OK" {
-		suite.T().Skip()
-	}
 	suite.Require().Equal("200 OK", resp.Status)
 
 	suite.NotNil(suite.subscriberGateway.GetByEmail("test@gmail.com"))
 }
 
 func (suite *SubscribersPresentationSuite) TestAddSubscriber_Error() {
-	suite.T().Skip()
 	suite.notifierConsumer = runConsumer(suite.js, suite.eventGateway, true)
 
 	var jsonStr = []byte(`{"email":"test@gmail.com"}`)
@@ -169,7 +172,6 @@ func (suite *SubscribersPresentationSuite) TestAddSubscriber_Error() {
 }
 
 func (suite *SubscribersPresentationSuite) TestGetCurrency() {
-	suite.T().Skip()
 	req := httptest.NewRequest("GET", "/rates/?from=USD", nil)
 
 	resp, err := suite.webApp.Test(req)
@@ -178,6 +180,6 @@ func (suite *SubscribersPresentationSuite) TestGetCurrency() {
 	suite.Equal("200 OK", resp.Status)
 }
 
-// func TestSubscriberPresenterTestSuite(t *testing.T) {
-//	suite.Run(t, new(SubscribersPresentationSuite))
-// }
+func TestSubscriberPresenterTestSuite(t *testing.T) {
+	suite.Run(t, new(SubscribersPresentationSuite))
+}

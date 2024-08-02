@@ -1,0 +1,5 @@
+#!/usr/bin/env just --justfile
+set shell := ["sh", "-c"]
+
+lint:
+    golangci-lint run -c ..\conf\.golangci.yml

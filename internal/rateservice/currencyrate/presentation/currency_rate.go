@@ -2,8 +2,11 @@ package presentation
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"go_service/internal/rateservice/currencyrate/adapters"
 	"go_service/internal/rateservice/currencyrate/services"
+	"log/slog"
 )
 
 type GetCurrencyRate interface {
@@ -11,13 +14,25 @@ type GetCurrencyRate interface {
 }
 
 type CurrencyHandlers struct {
-	container InteractorFactory
+	container    InteractorFactory
+	cacheAdapter adapters.CacheRateAdapter
 }
 
-func NewCurrencyHandlers(container InteractorFactory) CurrencyHandlers {
-	return CurrencyHandlers{container}
+func NewCurrencyHandlers(container InteractorFactory, cacheAdapter adapters.CacheRateAdapter) CurrencyHandlers {
+	return CurrencyHandlers{container, cacheAdapter}
 }
 
+// GetCurrency @Summary Get currency rate
+// @Description Get the exchange rate from one currency to another
+// @Tags currency
+// @Accept json
+// @Produce json
+// @Param from query string true "Source currency code"
+// @Param to query string false "Target currency code" default(UAH)
+// @Success 200 {object} map[string]interface{} "rate"
+// @Failure 400 {object} map[string]string "error"
+// @Failure 500 {object} map[string]string "error"
+// @Router /currency [get]
 func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
 	from := c.Query("from")
 	to := c.Query("to", "UAH")
@@ -32,6 +47,11 @@ func (ch *CurrencyHandlers) GetCurrency(c *fiber.Ctx) error {
 			})
 		}
 		return fiber.ErrInternalServerError
+	}
+
+	err := ch.cacheAdapter.SetCurrencyRate(from, to, result.Result)
+	if err != nil {
+		slog.Warn(fmt.Sprintf("Error set currency rate to cache. Error: %v", err))
 	}
 
 	response := map[string]interface{}{

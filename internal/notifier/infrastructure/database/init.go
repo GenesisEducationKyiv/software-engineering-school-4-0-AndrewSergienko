@@ -5,11 +5,9 @@ import (
 	"go_service/internal/notifier/infrastructure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log/slog"
-	"os"
 )
 
-func New(settings infrastructure.DatabaseSettings) *gorm.DB {
+func New(settings infrastructure.DatabaseSettings) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		settings.Host,
@@ -18,11 +16,5 @@ func New(settings infrastructure.DatabaseSettings) *gorm.DB {
 		settings.Database,
 		settings.Port,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		slog.Error(fmt.Sprintf("Database is not available. Error: %s", err))
-		os.Exit(1)
-	}
-	return db
+	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }

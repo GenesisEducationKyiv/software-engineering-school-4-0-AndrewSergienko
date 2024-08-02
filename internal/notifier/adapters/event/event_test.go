@@ -6,6 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/stretchr/testify/suite"
+	"go_service/internal/notifier/infrastructure"
 	"go_service/internal/notifier/infrastructure/broker"
 	"log"
 	"time"
@@ -20,13 +21,16 @@ type NatsEventEmitterTestSuite struct {
 
 func (suite *NatsEventEmitterTestSuite) SetupTest() {
 	ctx := context.Background()
-	conn, js := broker.New()
+	brokerSettings := infrastructure.GetBrokerSettings()
+	conn, js, err := broker.New(brokerSettings)
+
+	suite.NoError(err)
 
 	if conn == nil {
 		suite.T().Skip("NATS connection failed")
 	}
 
-	_, err := broker.NewStream(ctx, js, "events")
+	_, err = broker.NewStream(ctx, js, "events")
 
 	suite.NoError(err)
 

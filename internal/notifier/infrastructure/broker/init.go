@@ -2,28 +2,26 @@ package broker
 
 import (
 	"context"
-	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"go_service/internal/notifier/infrastructure"
 	"log/slog"
 )
 
-func New() (*nats.Conn, jetstream.JetStream) {
-	conn, err := nats.Connect("nats://localhost:4222")
+func New(settings infrastructure.BrokerSettings) (*nats.Conn, jetstream.JetStream, error) {
+	conn, err := nats.Connect(settings.URL)
 	if err != nil {
-		slog.Error(fmt.Sprintf("NATS is not available. Error: %s", err))
-		return nil, nil
+		return nil, nil, err
 	}
 	slog.Debug("Connected to NATS")
 
 	js, err := jetstream.New(conn)
 	if err != nil {
-		slog.Error(fmt.Sprintf("JetStream is not available. Error: %s", err))
-		return nil, nil
+		return nil, nil, err
 	}
 	slog.Debug("Connected to JetStream")
 
-	return conn, js
+	return conn, js, nil
 }
 
 func Finalize(conn *nats.Conn) {
@@ -32,7 +30,7 @@ func Finalize(conn *nats.Conn) {
 }
 
 func NewStream(ctx context.Context, js jetstream.JetStream, name string) (jetstream.Stream, error) {
-	return js.CreateStream(ctx, jetstream.StreamConfig{
+	return js.CreateOrUpdateStream(ctx, jetstream.StreamConfig{
 		Name:     name,
 		Subjects: []string{name + ".*"},
 	})

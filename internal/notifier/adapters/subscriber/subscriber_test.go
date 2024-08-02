@@ -18,7 +18,10 @@ type SubscriberAdapterTestSuite struct {
 
 func (suite *SubscriberAdapterTestSuite) SetupSuite() {
 	settings := infrastructure.GetDatabaseSettings()
-	suite.db = database.New(settings)
+	db, err := database.New(settings)
+	suite.NoError(err)
+
+	suite.db = db
 }
 
 func (suite *SubscriberAdapterTestSuite) SetupTest() {
@@ -43,6 +46,34 @@ func (suite *SubscriberAdapterTestSuite) TestGetAll() {
 	for i := 0; i < len(emails); i++ {
 		suite.Equal(emails[i], subscribers[i].Email)
 	}
+}
+
+func (suite *SubscriberAdapterTestSuite) TestGetByEmail() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	subscriber := suite.adapter.GetByEmail(email)
+
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreate() {
+	email := "test@gmail.com"
+
+	err := suite.adapter.Create(email)
+
+	suite.Nil(err)
+
+	subscriber := suite.adapter.GetByEmail(email)
+	suite.NotNil(subscriber)
+}
+
+func (suite *SubscriberAdapterTestSuite) TestCreateDuplicate() {
+	email := "test@gmail.com"
+	suite.transaction.Create(&models.Subscriber{Email: email})
+
+	err := suite.adapter.Create(email)
+	suite.NotNil(err)
 }
 
 func TestSubscriberAdapterSuite(t *testing.T) {

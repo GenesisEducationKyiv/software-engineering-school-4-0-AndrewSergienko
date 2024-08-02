@@ -16,7 +16,7 @@ func NewTask(
 	emailSettings infrastructure.EmailSettings,
 	conn jetstream.JetStream,
 ) app.RateNotifier {
-	schedulerGateway := scheduler.NewScheduleAdapter()
+	schedulerGateway := scheduler.NewScheduleAdapter(nil)
 	container := app.NewIoC(ctx, db, currencyServiceSettings, emailSettings, conn)
 
 	return app.NewRateNotifier(container, schedulerGateway)

@@ -1,29 +1,154 @@
 services:
-  api:
+  rateservice:
     build: ..
+    container_name: rateservice
     ports:
       - "8080:8080"
+      - "9000:9000"
     env_file:
-      - ../conf/.env.main
-    command: bash -c "goose -dir internal/infrastructure/database/migrations postgres \"host=${DB_HOST} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB}\" up && /goapp"
+      - ../conf/.env.rateservice
+    environment:
+      APP_NAME: rateservice
     depends_on:
-      postgres:
+      rateservice-postgres:
         condition: service_healthy
-  postgres:
+    networks:
+        - general-network
+        - rateservice-network
+
+  rateservice-postgres:
     image: postgres
+    container_name: rateservice.database
     env_file:
-      - ../conf/.env.main
+      - ../conf/.env.rateservice
     ports:
-      - '5432:5432'
+      - '5431:5432'
     healthcheck:
-      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 3s
       retries: 5
-#  nginx:
-#    image: nginx
-#    ports:
-#      - "80:80"
-#    depends_on:
-#      - api
-#    volumes:
-#      - ../conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+        - rateservice-network
+
+  rateservice-memcached:
+    image: memcached:latest
+    container_name: rateservice.memcached
+    ports:
+      - "11211:11211"
+    networks:
+      - rateservice-network
+
+  notifier:
+    build: ..
+    container_name: notifier
+    env_file:
+      - ../conf/.env.notifier
+    environment:
+      APP_NAME: notifier
+    depends_on:
+      notifier-postgres:
+        condition: service_healthy
+    networks:
+        - general-network
+        - notifier-network
+
+  notifier-postgres:
+    image: postgres
+    container_name: notifier.database
+    env_file:
+      - ../conf/.env.notifier
+    ports:
+      - '5435:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 3s
+      retries: 5
+    networks:
+        - notifier-network
+
+  nats:
+    image: nats
+    command:
+      - "--js"
+    networks:
+      - general-network
+
+  grafana:
+    image: grafana/grafana:9.5.2
+    container_name: grafana
+    restart: unless-stopped
+    expose:
+      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - general-network
+    volumes:
+      - grafana.data:/var/lib/grafana:rw
+      - ../conf/grafana/provisioning:/etc/grafana/provisioning:rw
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - VIRTUAL_HOST=grafana
+      - NETWORK_ACCESS=internal
+      - VIRTUAL_PORT=3000
+
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: loki
+    expose:
+      - "3100"
+    volumes:
+      - ../conf/loki.yaml:/etc/loki/config.yaml:ro
+      - loki.data:/tmp/:rw
+    command: -config.file=/etc/loki/config.yaml
+    restart: unless-stopped
+    networks:
+      - general-network
+
+  vector:
+    image: timberio/vector:0.29.1-alpine
+    container_name: vector
+    restart: unless-stopped
+    expose:
+      - "8383"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../conf/vector.toml:/etc/vector/vector.toml:ro
+    networks:
+      - general-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+        - general-network
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    ports:
+      - "8428:8428"
+    networks:
+      - general-network
+
+volumes:
+  loki.data: {}
+  grafana.data: {}
+
+networks:
+  # general network for all services
+  general-network:
+    driver: bridge
+  # networks for services and his internal dependencies
+  rateservice-network:
+    driver: bridge
+  notifier-network:
+    driver: bridge

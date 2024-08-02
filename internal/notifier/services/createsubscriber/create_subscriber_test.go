@@ -3,6 +3,7 @@ package createsubscriber
 import (
 	"errors"
 	"github.com/stretchr/testify/suite"
+	"go_service/internal/notifier/domain"
 	"go_service/internal/notifier/infrastructure/database/models"
 	"testing"
 )
@@ -48,6 +49,12 @@ func (suite *CreateSubscriberTestSuite) SetupSuite() {
 	suite.eventEmitter = &EventEmitterMock{}
 }
 
+func (suite *CreateSubscriberTestSuite) SetupTest() {
+	suite.subscriberGateway.(*SubscriberGatewayMock).RaiseError = false
+	suite.subscriberGateway.(*SubscriberGatewayMock).Subscriber = nil
+	suite.eventEmitter.(*EventEmitterMock).EmittedEvent = ""
+}
+
 func (suite *CreateSubscriberTestSuite) TestHandle_Success() {
 	suite.subscriberGateway.(*SubscriberGatewayMock).RaiseError = false
 
@@ -66,6 +73,16 @@ func (suite *CreateSubscriberTestSuite) TestHandle_Error() {
 	suite.NoError(service.Handle(data).Err)
 	suite.Nil(suite.subscriberGateway.GetByEmail(data.Email))
 	suite.Equal("SubscriberCreatedError", suite.eventEmitter.(*EventEmitterMock).EmittedEvent)
+}
+
+func (suite *CreateSubscriberTestSuite) TestHandle_DuplicateEmail() {
+	suite.subscriberGateway.(*SubscriberGatewayMock).Subscriber = &models.Subscriber{Email: "test@gmail.com"}
+
+	service := New(suite.subscriberGateway, suite.eventEmitter)
+	data := InputData{Email: "test@gmail.com"}
+
+	var emailConflictError *domain.EmailConflictError
+	suite.ErrorAs(service.Handle(data).Err, &emailConflictError)
 }
 
 func TestCreateSubscriberSuite(t *testing.T) {

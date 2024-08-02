@@ -1,9 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"github.com/robfig/cron/v3"
+	"go_service/internal/notifier/infrastructure/metrics"
 	"go_service/internal/notifier/services/sendnotification"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -29,12 +31,17 @@ func (rn RateNotifier) Run() *cron.Cron {
 	interactor := rn.container.SendNotification()
 
 	handler := func() {
-		if interactor.Handle(sendnotification.InputData{From: "USD", To: "UAH"}).Err != nil {
-			log.Printf("EMAIL SEND ERROR")
+		slog.Info("Start sending notifications")
+		err := interactor.Handle(sendnotification.InputData{From: "USD", To: "UAH"}).Err
+		if err != nil {
+			metrics.EmailsSentLastTime.WithLabelValues("error").Set(float64(time.Now().Unix()))
+			slog.Warn(fmt.Sprintf("Failed to send email. Error: %s", err))
 		} else {
-			log.Printf("EMAIL SEND SUCCESS")
+			slog.Info("Email sent successfully")
+			metrics.EmailsSentLastTime.WithLabelValues("success").Set(float64(time.Now().Unix()))
 			err := rn.schedulerGateway.SetLastTime(time.Now())
 			if err != nil {
+				slog.Warn(fmt.Sprintf("Failed to set last time. Error: %s", err))
 				return
 			}
 		}
@@ -56,7 +63,7 @@ func (rn RateNotifier) Run() *cron.Cron {
 		return nil
 	}
 	rn.cronObj.Start()
-	log.Printf("CRON STARTED")
+	slog.Info("Cron started")
 
 	return rn.cronObj
 }

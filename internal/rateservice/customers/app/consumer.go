@@ -79,6 +79,8 @@ func newMessageHandler(container presentation.InteractorFactory) func(msg jetstr
 			}
 			interactor.Handle(inputData)
 			_ = msg.Ack()
+		default:
+			_ = msg.Ack()
 		}
 	}
 }
